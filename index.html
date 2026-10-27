@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="h-full bg-slate-950">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pedro CRM - Consórcios & Supabase Sync</title>
+  <title>Pedro CRM - Consórcios Pro</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -14,25 +14,26 @@
   <!-- Supabase JS Client v2 CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
-  <!-- Google Fonts Inter -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Google Fonts Inter & Bricolage Grotesque -->
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   
   <script>
     tailwind.config = {
+      darkMode: 'class',
       theme: {
         extend: {
           fontFamily: {
             sans: ['Inter', 'sans-serif'],
+            display: ['Bricolage Grotesque', 'sans-serif'],
           },
           colors: {
             brand: {
-              50: '#f0f7ff',
-              100: '#e0effe',
-              500: '#2563eb',
-              600: '#1d4ed8',
-              700: '#1e40af',
-              800: '#1e3a8a',
-              900: '#0f172a'
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              900: '#1e1b4b'
             }
           }
         }
@@ -40,502 +41,464 @@
     }
   </script>
   <style>
-    /* Barra de rolagem personalizada e visivel para o Kanban */
-    .kanban-scroll::-webkit-scrollbar {
-      height: 10px;
-    }
-    .kanban-scroll::-webkit-scrollbar-track {
-      background: #e2e8f0;
-      border-radius: 8px;
-    }
-    .kanban-scroll::-webkit-scrollbar-thumb {
-      background: #94a3b8;
-      border-radius: 8px;
-    }
-    .kanban-scroll::-webkit-scrollbar-thumb:hover {
-      background: #64748b;
-    }
+    .kanban-scroll::-webkit-scrollbar { height: 8px; }
+    .kanban-scroll::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); border-radius: 8px; }
+    .kanban-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 8px; }
+    .kanban-scroll::-webkit-scrollbar-thumb:hover { background: #475569; }
 
-    .kanban-col::-webkit-scrollbar {
-      width: 5px;
-    }
-    .kanban-col::-webkit-scrollbar-track {
-      background: rgba(241, 245, 249, 0.5);
-    }
-    .kanban-col::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 4px;
+    .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    
+    .glass-panel {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
   </style>
 </head>
-<body class="bg-slate-100 font-sans text-slate-800 antialiased min-h-screen flex flex-col selection:bg-blue-500 selection:text-white">
+<body class="bg-slate-950 font-sans text-slate-100 antialiased h-full flex overflow-hidden selection:bg-indigo-500 selection:text-white">
 
-  <!-- ==================== HEADER / NAVBAR ==================== -->
-  <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-30">
-    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16">
-        
-        <!-- Logo & Status -->
-        <div class="flex items-center space-x-3">
-          <div class="bg-blue-600 p-2 rounded-xl text-white shadow-md shadow-blue-500/30">
-            <i class="fa-solid fa-chart-pie text-xl"></i>
+  <!-- ==================== SIDEBAR LATERAL NATIVA ==================== -->
+  <aside id="sidebar" class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between transition-all duration-300 z-40 shrink-0">
+    <div>
+      <!-- Topo Sidebar / Logo -->
+      <div class="h-16 flex items-center justify-between px-4 border-b border-slate-800/80">
+        <div class="flex items-center space-x-3 overflow-hidden">
+          <div class="bg-gradient-to-tr from-indigo-600 to-indigo-400 p-2.5 rounded-xl text-white shadow-lg shadow-indigo-500/25 shrink-0">
+            <i class="fa-solid fa-chart-pie text-lg"></i>
           </div>
-          <div>
-            <div class="flex items-center space-x-2">
-              <h1 class="text-xl font-bold tracking-tight text-white leading-none">Pedro <span class="text-blue-400">CRM</span></h1>
-              <span id="conn-badge" class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1">
-                <span id="conn-dot" class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
-                <span id="conn-text">Modo Local</span>
-              </span>
+          <div class="sidebar-label transition-opacity duration-200">
+            <h1 class="text-base font-extrabold tracking-tight font-display text-white leading-none">Pedro <span class="text-indigo-400">CRM</span></h1>
+            <p class="text-[10px] text-slate-400 font-medium tracking-wide uppercase mt-0.5">Consórcios Pro</p>
+          </div>
+        </div>
+        <button onclick="toggleSidebar()" class="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition">
+          <i id="sidebar-icon" class="fa-solid fa-angles-left text-xs"></i>
+        </button>
+      </div>
+
+      <!-- Navegação Principal -->
+      <nav class="p-3 space-y-1">
+        <button onclick="switchTab('dashboard')" id="nav-btn-dashboard" class="nav-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white transition shadow-md shadow-indigo-600/20">
+          <i class="fa-solid fa-chart-line text-sm w-5"></i>
+          <span class="sidebar-label">Dashboard</span>
+        </button>
+
+        <button onclick="switchTab('kanban')" id="nav-btn-kanban" class="nav-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition">
+          <i class="fa-solid fa-columns text-sm w-5"></i>
+          <span class="sidebar-label">Funil Kanban</span>
+        </button>
+
+        <button onclick="switchTab('cotas')" id="nav-btn-cotas" class="nav-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition">
+          <i class="fa-solid fa-file-contract text-sm w-5"></i>
+          <span class="sidebar-label">Cotas & Assembleias</span>
+        </button>
+
+        <button onclick="switchTab('simulador')" id="nav-btn-simulador" class="nav-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition">
+          <i class="fa-solid fa-calculator text-sm w-5"></i>
+          <span class="sidebar-label">Simulador de Lance</span>
+        </button>
+
+        <button onclick="switchTab('clientes')" id="nav-btn-clientes" class="nav-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition">
+          <i class="fa-solid fa-address-book text-sm w-5"></i>
+          <span class="sidebar-label">Carteira de Clientes</span>
+        </button>
+
+        <button onclick="switchTab('config')" id="nav-btn-config" class="nav-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition">
+          <i class="fa-solid fa-database text-sm w-5"></i>
+          <span class="sidebar-label">Banco & Script SQL</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Status Conexão / Rodapé Sidebar -->
+    <div class="p-3 border-t border-slate-800">
+      <div id="conn-badge" class="px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 flex items-center space-x-2">
+        <span id="conn-dot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0"></span>
+        <div class="sidebar-label overflow-hidden">
+          <span id="conn-text" class="block text-[11px] font-bold leading-none">Modo Local</span>
+          <span id="conn-subtext" class="text-[9px] text-amber-400/70 block mt-0.5 truncate">Supabase Desconectado</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ==================== CONTEÚDO PRINCIPAL (MAIN) ==================== -->
+  <div class="flex-1 flex flex-col h-full overflow-hidden">
+
+    <!-- Header Superior -->
+    <header class="h-16 bg-slate-900/80 border-b border-slate-800/80 px-6 flex items-center justify-between shrink-0 glass-panel">
+      <!-- Indicadores Rápidos -->
+      <div class="flex items-center space-x-6 text-xs">
+        <div>
+          <span class="text-slate-400 text-[10px] font-bold uppercase tracking-wider block">Crédito Ativo</span>
+          <span id="hdr-credito" class="font-extrabold text-emerald-400 font-display text-sm">R$ 0,00</span>
+        </div>
+        <div class="h-8 w-px bg-slate-800"></div>
+        <div>
+          <span class="text-slate-400 text-[10px] font-bold uppercase tracking-wider block">Vendas Ganhas</span>
+          <span id="hdr-vendas" class="font-extrabold text-indigo-400 font-display text-sm">0</span>
+        </div>
+        <div class="h-8 w-px bg-slate-800"></div>
+        <div>
+          <span class="text-slate-400 text-[10px] font-bold uppercase tracking-wider block">Comissão Est. (1.5%)</span>
+          <span id="hdr-comissao" class="font-extrabold text-purple-400 font-display text-sm">R$ 0,00</span>
+        </div>
+      </div>
+
+      <!-- Ações do Header -->
+      <div class="flex items-center space-x-3">
+        <button onclick="syncData()" title="Sincronizar dados agora" class="bg-slate-800 hover:bg-slate-700 text-slate-200 p-2.5 rounded-xl border border-slate-700/80 transition">
+          <i id="sync-icon" class="fa-solid fa-rotate text-xs"></i>
+        </button>
+
+        <button onclick="openConfigModal()" title="Configuração Supabase" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-xl border border-slate-700/80 transition flex items-center space-x-2 text-xs font-semibold">
+          <i class="fa-solid fa-plug text-indigo-400"></i>
+          <span class="hidden sm:inline">Conexão DB</span>
+        </button>
+
+        <button onclick="openLeadModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition shadow-lg shadow-indigo-600/30 flex items-center space-x-2">
+          <i class="fa-solid fa-plus"></i>
+          <span>Novo Lead</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Área de Conteúdo Dinâmico -->
+    <main class="flex-1 overflow-y-auto p-6 custom-scroll">
+
+      <!-- 1. DASHBOARD -->
+      <section id="tab-dashboard" class="tab-content space-y-6">
+        <!-- Banner Aviso Modo Local -->
+        <div id="local-warning-banner" class="bg-amber-950/40 border border-amber-500/30 rounded-2xl p-4 flex items-center justify-between text-xs text-amber-200 glass-panel">
+          <div class="flex items-center space-x-3">
+            <div class="p-2 bg-amber-500/20 rounded-xl text-amber-400">
+              <i class="fa-solid fa-database text-base"></i>
             </div>
-            <p class="text-[11px] text-slate-400 hidden sm:block">Gestão de Consórcios & Sincronização Supabase</p>
+            <div>
+              <p class="font-bold">Modo Local Ativo (Armazenamento Temporário)</p>
+              <p class="text-[11px] text-amber-300/70">Os seus dados estão a ser salvos no navegador. Configure o Supabase para ter backup e sincronização na nuvem.</p>
+            </div>
           </div>
-        </div>
-
-        <!-- Metric Badges (Desktop Header) -->
-        <div class="hidden lg:flex items-center space-x-5 bg-slate-800/80 px-4 py-1.5 rounded-xl border border-slate-700/80 text-xs">
-          <div>
-            <span class="text-slate-400 block text-[9px] font-semibold uppercase">Total Crédito</span>
-            <span id="stat-credito" class="font-bold text-emerald-400">R$ 0,00</span>
-          </div>
-          <div class="h-6 w-px bg-slate-700"></div>
-          <div>
-            <span class="text-slate-400 block text-[9px] font-semibold uppercase">Vendas Ganhas</span>
-            <span id="stat-vendas" class="font-bold text-blue-400">0</span>
-          </div>
-          <div class="h-6 w-px bg-slate-700"></div>
-          <div>
-            <span class="text-slate-400 block text-[9px] font-semibold uppercase">Comissão Est. (1.5%)</span>
-            <span id="stat-comissao" class="font-bold text-purple-400">R$ 0,00</span>
-          </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="flex items-center space-x-2">
-          <button onclick="syncData()" title="Sincronizar dados agora" class="bg-slate-800 hover:bg-slate-700 text-slate-200 p-2.5 rounded-xl border border-slate-700 transition">
-            <i id="sync-icon" class="fa-solid fa-rotate text-sm"></i>
-          </button>
-
-          <button onclick="openConfigModal()" title="Configuração Supabase" class="bg-slate-800 hover:bg-slate-700 text-slate-200 p-2.5 rounded-xl border border-slate-700 transition flex items-center space-x-1 text-xs">
-            <i class="fa-solid fa-database text-blue-400"></i>
-            <span class="hidden sm:inline">Conexão DB</span>
-          </button>
-
-          <button onclick="openLeadModal()" class="bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-medium text-xs px-3.5 py-2.5 rounded-xl transition shadow-md flex items-center space-x-1.5">
-            <i class="fa-solid fa-plus"></i>
-            <span class="hidden sm:inline">Novo Lead</span>
+          <button onclick="openConfigModal()" class="px-3.5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition shadow">
+            Conectar Cloud
           </button>
         </div>
 
-      </div>
-    </div>
-  </header>
-
-  <!-- ==================== TAB NAVIGATION ==================== -->
-  <nav class="bg-white border-b border-slate-200 shadow-sm sticky top-16 z-20">
-    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex space-x-1 sm:space-x-6 overflow-x-auto py-2">
-        <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="tab-btn flex items-center space-x-2 py-2 px-3 border-b-2 font-semibold text-xs sm:text-sm border-blue-600 text-blue-600 whitespace-nowrap">
-          <i class="fa-solid fa-chart-line"></i>
-          <span>Dashboard</span>
-        </button>
-        <button onclick="switchTab('kanban')" id="tab-btn-kanban" class="tab-btn flex items-center space-x-2 py-2 px-3 border-b-2 font-semibold text-xs sm:text-sm border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap">
-          <i class="fa-solid fa-columns"></i>
-          <span>Funil Kanban</span>
-        </button>
-        <button onclick="switchTab('cotas')" id="tab-btn-cotas" class="tab-btn flex items-center space-x-2 py-2 px-3 border-b-2 font-semibold text-xs sm:text-sm border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap">
-          <i class="fa-solid fa-file-contract"></i>
-          <span>Cotas & Assembleias</span>
-        </button>
-        <button onclick="switchTab('simulador')" id="tab-btn-simulador" class="tab-btn flex items-center space-x-2 py-2 px-3 border-b-2 font-semibold text-xs sm:text-sm border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap">
-          <i class="fa-solid fa-calculator"></i>
-          <span>Simulador</span>
-        </button>
-        <button onclick="switchTab('clientes')" id="tab-btn-clientes" class="tab-btn flex items-center space-x-2 py-2 px-3 border-b-2 font-semibold text-xs sm:text-sm border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap">
-          <i class="fa-solid fa-users"></i>
-          <span>Clientes</span>
-        </button>
-        <button onclick="switchTab('config')" id="tab-btn-config" class="tab-btn flex items-center space-x-2 py-2 px-3 border-b-2 font-semibold text-xs sm:text-sm border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap">
-          <i class="fa-solid fa-code"></i>
-          <span>Script SQL / Config</span>
-        </button>
-      </div>
-    </div>
-  </nav>
-
-  <!-- ==================== MAIN CONTENT AREA ==================== -->
-  <main class="flex-1 max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-
-    <!-- 1. DASHBOARD TAB -->
-    <section id="tab-dashboard" class="tab-content space-y-6">
-      
-      <!-- Banner Aviso Local -->
-      <div id="local-warning-banner" class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start sm:items-center justify-between gap-3 shadow-sm">
-        <div class="flex items-center space-x-3">
-          <div class="p-2.5 bg-amber-100 text-amber-700 rounded-xl">
-            <i class="fa-solid fa-database text-lg"></i>
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="glass-panel p-5 rounded-2xl space-y-2">
+            <div class="flex justify-between items-center text-slate-400 text-xs font-bold uppercase tracking-wider">
+              <span>Total Leads</span>
+              <i class="fa-solid fa-users text-indigo-400"></i>
+            </div>
+            <p id="dash-total-leads" class="text-3xl font-extrabold font-display text-white">0</p>
+            <p class="text-[10px] text-slate-400">Cadastrados no pipeline</p>
           </div>
-          <div>
-            <h4 class="text-xs font-bold text-amber-900">Modo Local Ativo (Sem Supabase)</h4>
-            <p class="text-[11px] text-amber-700">Seus dados estão sendo salvos no navegador. Configure sua URL e Anon Key do Supabase para sincronização na nuvem.</p>
+
+          <div class="glass-panel p-5 rounded-2xl space-y-2">
+            <div class="flex justify-between items-center text-slate-400 text-xs font-bold uppercase tracking-wider">
+              <span>Em Negociação</span>
+              <i class="fa-solid fa-comments-dollar text-amber-400"></i>
+            </div>
+            <p id="dash-credito-negociacao" class="text-3xl font-extrabold font-display text-white">R$ 0,00</p>
+            <p class="text-[10px] text-slate-400">Propostas ativas</p>
+          </div>
+
+          <div class="glass-panel p-5 rounded-2xl space-y-2">
+            <div class="flex justify-between items-center text-slate-400 text-xs font-bold uppercase tracking-wider">
+              <span>Vendas Fechadas</span>
+              <i class="fa-solid fa-circle-check text-emerald-400"></i>
+            </div>
+            <p id="dash-credito-ganho" class="text-3xl font-extrabold font-display text-emerald-400">R$ 0,00</p>
+            <p class="text-[10px] text-slate-400">Crédito contratado</p>
+          </div>
+
+          <div class="glass-panel p-5 rounded-2xl space-y-2">
+            <div class="flex justify-between items-center text-slate-400 text-xs font-bold uppercase tracking-wider">
+              <span>Comissão Est.</span>
+              <i class="fa-solid fa-hand-holding-dollar text-purple-400"></i>
+            </div>
+            <p id="dash-comissao" class="text-3xl font-extrabold font-display text-purple-400">R$ 0,00</p>
+            <p class="text-[10px] text-slate-400">Estimativa a 1.5%</p>
           </div>
         </div>
-        <button onclick="openConfigModal()" class="whitespace-nowrap px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold transition shadow-sm">
-          Conectar Supabase
-        </button>
-      </div>
 
-      <!-- Stat Cards Grid -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <div class="flex items-center justify-between text-slate-400 mb-2">
-            <span class="text-xs font-bold uppercase tracking-wider">Total Leads</span>
-            <i class="fa-solid fa-users text-blue-500"></i>
+        <!-- Painéis Inferiores -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Assembleias Próximas -->
+          <div class="glass-panel p-5 rounded-2xl space-y-4">
+            <div class="flex justify-between items-center">
+              <h3 class="font-bold text-sm text-white flex items-center space-x-2">
+                <i class="fa-solid fa-calendar-day text-indigo-400"></i>
+                <span>Próximas Assembleias de Cotas</span>
+              </h3>
+              <button onclick="switchTab('cotas')" class="text-xs text-indigo-400 hover:underline font-semibold">Ver Cotas</button>
+            </div>
+            <div id="dash-assembleias-list" class="space-y-2 max-h-60 overflow-y-auto custom-scroll">
+              <!-- Renderizado via JS -->
+            </div>
           </div>
-          <p id="dash-total-leads" class="text-2xl font-bold text-slate-800">0</p>
-          <span class="text-[10px] text-slate-400">Cadastrados no sistema</span>
-        </div>
 
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <div class="flex items-center justify-between text-slate-400 mb-2">
-            <span class="text-xs font-bold uppercase tracking-wider">Em Negociação</span>
-            <i class="fa-solid fa-comments-dollar text-amber-500"></i>
-          </div>
-          <p id="dash-credito-negociacao" class="text-2xl font-bold text-slate-800">R$ 0,00</p>
-          <span class="text-[10px] text-slate-400">Pipeline ativo</span>
-        </div>
-
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <div class="flex items-center justify-between text-slate-400 mb-2">
-            <span class="text-xs font-bold uppercase tracking-wider">Vendas Fechadas</span>
-            <i class="fa-solid fa-circle-check text-emerald-500"></i>
-          </div>
-          <p id="dash-credito-ganho" class="text-2xl font-bold text-emerald-600">R$ 0,00</p>
-          <span class="text-[10px] text-slate-400">Crédito total vendido</span>
-        </div>
-
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <div class="flex items-center justify-between text-slate-400 mb-2">
-            <span class="text-xs font-bold uppercase tracking-wider">Comissão Est.</span>
-            <i class="fa-solid fa-hand-holding-dollar text-purple-500"></i>
-          </div>
-          <p id="dash-comissao" class="text-2xl font-bold text-purple-600">R$ 0,00</p>
-          <span class="text-[10px] text-slate-400">Projeção de 1.5%</span>
-        </div>
-
-      </div>
-
-      <!-- Quick Summary Charts/Lists -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-        <!-- Próximas Assembleias -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-          <div class="flex justify-between items-center">
-            <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
-              <i class="fa-solid fa-calendar-days text-blue-500"></i> Próximas Assembleias de Cotas
+          <!-- Distribuição do Funil / Conversão -->
+          <div class="glass-panel p-5 rounded-2xl space-y-4">
+            <h3 class="font-bold text-sm text-white flex items-center space-x-2">
+              <i class="fa-solid fa-filter text-indigo-400"></i>
+              <span>Distribuição do Funil Comercial</span>
             </h3>
-            <button onclick="switchTab('cotas')" class="text-xs text-blue-600 font-semibold hover:underline">Ver todas</button>
-          </div>
-          <div id="dash-assembleias-list" class="space-y-2 max-h-56 overflow-y-auto">
-            <!-- Inserido dinamicamente -->
-          </div>
-        </div>
-
-        <!-- Resumo de Leads por Etapa -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-          <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
-            <i class="fa-solid fa-filter text-indigo-500"></i> Distribuição do Funil
-          </h3>
-          <div id="dash-funil-breakdown" class="space-y-2 text-xs">
-            <!-- Inserido dinamicamente -->
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- 2. KANBAN TAB (COM BARRA DE ROLAGEM VISÍVEL E NAVEGAÇÃO POR BOTÕES) -->
-    <section id="tab-kanban" class="tab-content hidden space-y-3">
-      <div class="flex items-center justify-between">
-        <div>
-          <h2 class="text-lg font-bold text-slate-800">Funil de Vendas de Consórcio</h2>
-          <p class="text-xs text-slate-500">Arraste os cards para atualizar a etapa do lead em tempo real.</p>
-        </div>
-
-        <!-- Botões de Navegação Rápida do Kanban -->
-        <div class="flex items-center space-x-2 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm">
-          <span class="text-xs font-semibold text-slate-500 mr-1">Rolar Funil:</span>
-          <button onclick="scrollKanban('left')" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs transition">
-            <i class="fa-solid fa-chevron-left"></i>
-          </button>
-          <button onclick="scrollKanban('right')" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs transition">
-            <i class="fa-solid fa-chevron-right"></i>
-          </button>
-        </div>
-      </div>
-
-      <!-- Container do Kanban com Scroll Visível -->
-      <div id="kanban-wrapper" class="flex overflow-x-auto gap-4 items-start pb-6 pt-1 kanban-scroll">
-        
-        <!-- Novo Lead -->
-        <div class="bg-slate-200/60 p-3 rounded-2xl border border-slate-300/60 flex flex-col max-h-[calc(100vh-220px)] min-w-[270px] w-[270px] shrink-0">
-          <div class="flex justify-between items-center mb-3 px-1">
-            <span class="font-bold text-xs uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-              <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> Novo Lead
-            </span>
-            <span id="count-novo_lead" class="text-xs font-bold bg-white text-slate-600 px-2 py-0.5 rounded-full border">0</span>
-          </div>
-          <div id="col-novo_lead" ondrop="drop(event, 'novo_lead')" ondragover="allowDrop(event)" class="kanban-col space-y-2.5 overflow-y-auto flex-1 min-h-[180px]"></div>
-        </div>
-
-        <!-- Contato Inicial -->
-        <div class="bg-slate-200/60 p-3 rounded-2xl border border-slate-300/60 flex flex-col max-h-[calc(100vh-220px)] min-w-[270px] w-[270px] shrink-0">
-          <div class="flex justify-between items-center mb-3 px-1">
-            <span class="font-bold text-xs uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-              <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Contato
-            </span>
-            <span id="count-contato_inicial" class="text-xs font-bold bg-white text-slate-600 px-2 py-0.5 rounded-full border">0</span>
-          </div>
-          <div id="col-contato_inicial" ondrop="drop(event, 'contato_inicial')" ondragover="allowDrop(event)" class="kanban-col space-y-2.5 overflow-y-auto flex-1 min-h-[180px]"></div>
-        </div>
-
-        <!-- Proposta -->
-        <div class="bg-slate-200/60 p-3 rounded-2xl border border-slate-300/60 flex flex-col max-h-[calc(100vh-220px)] min-w-[270px] w-[270px] shrink-0">
-          <div class="flex justify-between items-center mb-3 px-1">
-            <span class="font-bold text-xs uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-              <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span> Proposta
-            </span>
-            <span id="count-proposta" class="text-xs font-bold bg-white text-slate-600 px-2 py-0.5 rounded-full border">0</span>
-          </div>
-          <div id="col-proposta" ondrop="drop(event, 'proposta')" ondragover="allowDrop(event)" class="kanban-col space-y-2.5 overflow-y-auto flex-1 min-h-[180px]"></div>
-        </div>
-
-        <!-- Negociação -->
-        <div class="bg-slate-200/60 p-3 rounded-2xl border border-slate-300/60 flex flex-col max-h-[calc(100vh-220px)] min-w-[270px] w-[270px] shrink-0">
-          <div class="flex justify-between items-center mb-3 px-1">
-            <span class="font-bold text-xs uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-              <span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span> Negociação
-            </span>
-            <span id="count-negociacao" class="text-xs font-bold bg-white text-slate-600 px-2 py-0.5 rounded-full border">0</span>
-          </div>
-          <div id="col-negociacao" ondrop="drop(event, 'negociacao')" ondragover="allowDrop(event)" class="kanban-col space-y-2.5 overflow-y-auto flex-1 min-h-[180px]"></div>
-        </div>
-
-        <!-- Aguardando Pagamento -->
-        <div class="bg-slate-200/60 p-3 rounded-2xl border border-slate-300/60 flex flex-col max-h-[calc(100vh-220px)] min-w-[270px] w-[270px] shrink-0">
-          <div class="flex justify-between items-center mb-3 px-1">
-            <span class="font-bold text-xs uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-              <span class="w-2.5 h-2.5 rounded-full bg-cyan-500"></span> Aguardando
-            </span>
-            <span id="count-aguardando" class="text-xs font-bold bg-white text-slate-600 px-2 py-0.5 rounded-full border">0</span>
-          </div>
-          <div id="col-aguardando" ondrop="drop(event, 'aguardando')" ondragover="allowDrop(event)" class="kanban-col space-y-2.5 overflow-y-auto flex-1 min-h-[180px]"></div>
-        </div>
-
-        <!-- Ganho -->
-        <div class="bg-emerald-100/60 p-3 rounded-2xl border border-emerald-300/70 flex flex-col max-h-[calc(100vh-220px)] min-w-[270px] w-[270px] shrink-0">
-          <div class="flex justify-between items-center mb-3 px-1">
-            <span class="font-bold text-xs uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
-              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Ganho
-            </span>
-            <span id="count-ganho" class="text-xs font-bold bg-white text-emerald-800 px-2 py-0.5 rounded-full border border-emerald-200">0</span>
-          </div>
-          <div id="col-ganho" ondrop="drop(event, 'ganho')" ondragover="allowDrop(event)" class="kanban-col space-y-2.5 overflow-y-auto flex-1 min-h-[180px]"></div>
-        </div>
-
-        <!-- Perdido -->
-        <div class="bg-rose-100/40 p-3 rounded-2xl border border-rose-200/70 flex flex-col max-h-[calc(100vh-220px)] min-w-[270px] w-[270px] shrink-0">
-          <div class="flex justify-between items-center mb-3 px-1">
-            <span class="font-bold text-xs uppercase tracking-wider text-rose-700 flex items-center gap-1.5">
-              <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Perdido
-            </span>
-            <span id="count-perdido" class="text-xs font-bold bg-white text-rose-700 px-2 py-0.5 rounded-full border border-rose-200">0</span>
-          </div>
-          <div id="col-perdido" ondrop="drop(event, 'perdido')" ondragover="allowDrop(event)" class="kanban-col space-y-2.5 overflow-y-auto flex-1 min-h-[180px]"></div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- 3. COTAS & ASSEMBLEIAS TAB -->
-    <section id="tab-cotas" class="tab-content hidden space-y-6">
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
-        <div>
-          <h2 class="text-lg font-bold text-slate-800">Gestão de Cotas & Calendário de Assembleias</h2>
-          <p class="text-xs text-slate-500">Acompanhamento das cotas ativas, contemplações e ofertas de lance.</p>
-        </div>
-        <div class="flex items-center space-x-3 w-full sm:w-auto">
-          <select id="filter-cotas-status" onchange="renderCotas()" class="bg-slate-50 border border-slate-300 text-xs rounded-xl p-2.5 text-slate-700 focus:ring-blue-500 focus:border-blue-500">
-            <option value="todos">Todas as Cotas</option>
-            <option value="ativa">Somente Ativas</option>
-            <option value="contemplada">Somente Contempladas</option>
-          </select>
-          <button onclick="openCotaModal()" class="bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs px-4 py-2.5 rounded-xl transition shadow flex items-center space-x-1.5 whitespace-nowrap">
-            <i class="fa-solid fa-plus"></i>
-            <span>Nova Cota</span>
-          </button>
-        </div>
-      </div>
-
-      <div id="cotas-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <!-- Inserido dinamicamente -->
-      </div>
-    </section>
-
-    <!-- 4. SIMULADOR TAB -->
-    <section id="tab-simulador" class="tab-content hidden max-w-4xl mx-auto">
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="bg-slate-900 text-white p-6">
-          <h2 class="text-xl font-bold flex items-center gap-2">
-            <i class="fa-solid fa-calculator text-blue-400"></i> Calculadora & Simulador de Lance
-          </h2>
-          <p class="text-xs text-slate-400 mt-1">Calcule lances embutidos, livres e abatimentos de prazo ou parcela para enviar propostas no WhatsApp.</p>
-        </div>
-
-        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-          
-          <!-- Formulário -->
-          <div class="space-y-4">
-            <h3 class="font-bold text-slate-800 text-sm border-b pb-2">Parâmetros do Consórcio</h3>
-            
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Valor do Crédito (R$)</label>
-              <input type="number" id="sim-credito" value="200000" oninput="calcularSimulacao()" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-blue-500 focus:border-blue-500" />
-            </div>
-
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">Prazo (Meses)</label>
-                <input type="number" id="sim-prazo" value="180" oninput="calcularSimulacao()" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-blue-500 focus:border-blue-500" />
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">Taxa Adm. (%)</label>
-                <input type="number" id="sim-taxa" value="18" step="0.5" oninput="calcularSimulacao()" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-blue-500 focus:border-blue-500" />
-              </div>
-            </div>
-
-            <hr class="my-2" />
-            <h3 class="font-bold text-slate-800 text-sm border-b pb-2">Estratégia de Lance</h3>
-
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">Lance Livre (R$)</label>
-                <input type="number" id="sim-lance-livre" value="40000" oninput="calcularSimulacao()" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-blue-500 focus:border-blue-500" />
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">Lance Embutido (%)</label>
-                <input type="number" id="sim-lance-embutido-pct" value="10" min="0" max="30" oninput="calcularSimulacao()" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-blue-500 focus:border-blue-500" />
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Opção de Abatimento</label>
-              <select id="sim-modo-abatimento" onchange="calcularSimulacao()" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-blue-500 focus:border-blue-500">
-                <option value="parcela">Reduzir Valor da Parcela</option>
-                <option value="prazo">Reduzir Prazo (Quantidade de Parcelas)</option>
-              </select>
+            <div id="dash-funil-breakdown" class="space-y-3 text-xs">
+              <!-- Renderizado via JS -->
             </div>
           </div>
+        </div>
+      </section>
 
-          <!-- Resultado -->
-          <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 flex flex-col justify-between space-y-4">
-            <div>
-              <h3 class="font-bold text-slate-800 text-sm border-b pb-2 mb-4">Resumo da Proposta</h3>
-              
-              <div class="space-y-3 text-sm">
-                <div class="flex justify-between py-1 border-b border-slate-200">
-                  <span class="text-slate-600">Crédito Líquido na Mão:</span>
-                  <span id="res-credito-liquido" class="font-bold text-emerald-600">R$ 0,00</span>
-                </div>
-                <div class="flex justify-between py-1 border-b border-slate-200">
-                  <span class="text-slate-600">Parcela Inicial:</span>
-                  <span id="res-parcela-inicial" class="font-semibold text-slate-800">R$ 0,00</span>
-                </div>
-                <div class="flex justify-between py-1 border-b border-slate-200">
-                  <span class="text-slate-600">Total do Lance Ofertado:</span>
-                  <span id="res-lance-total" class="font-bold text-blue-600">R$ 0,00 (0%)</span>
-                </div>
-                <div class="flex justify-between py-1 border-b border-slate-200">
-                  <span class="text-slate-600">-> Em Dinheiro (Livre):</span>
-                  <span id="res-lance-livre" class="font-medium">R$ 0,00</span>
-                </div>
-                <div class="flex justify-between py-1 border-b border-slate-200">
-                  <span class="text-slate-600">-> Do Próprio Crédito (Embutido):</span>
-                  <span id="res-lance-embutido" class="font-medium">R$ 0,00</span>
-                </div>
+      <!-- 2. KANBAN MODERNO COM FILTROS DE BEM -->
+      <section id="tab-kanban" class="tab-content hidden space-y-4 h-full flex flex-col">
+        <!-- Barra de Ações / Filtros de Tipo de Bem -->
+        <div class="flex items-center justify-between bg-slate-900/60 p-3 rounded-2xl border border-slate-800 glass-panel shrink-0">
+          <div class="flex items-center space-x-2">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider mr-2">Filtrar por Bem:</span>
+            <button onclick="filterKanban('todos')" id="filter-bem-todos" class="filter-bem-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white transition">Todos</button>
+            <button onclick="filterKanban('Imóvel')" id="filter-bem-Imóvel" class="filter-bem-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition">Imóvel</button>
+            <button onclick="filterKanban('Automóvel')" id="filter-bem-Automóvel" class="filter-bem-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition">Automóvel</button>
+            <button onclick="filterKanban('Pesados')" id="filter-bem-Pesados" class="filter-bem-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition">Pesados</button>
+          </div>
 
-                <div class="bg-blue-50 p-3 rounded-xl border border-blue-200 mt-4">
-                  <span class="text-xs text-blue-800 font-semibold block mb-1">Pós-Contemplação:</span>
-                  <div class="flex justify-between text-sm font-bold text-blue-900">
-                    <span id="res-rotulo-pos">Nova Parcela:</span>
-                    <span id="res-valor-pos">R$ 0,00</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <button onclick="enviarPropostaSimuladaWhats()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl transition shadow flex items-center justify-center space-x-2">
-              <i class="fa-brands fa-whatsapp text-lg"></i>
-              <span>Enviar Proposta no WhatsApp</span>
+          <div class="flex items-center space-x-2">
+            <button onclick="scrollKanban('left')" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs transition">
+              <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <button onclick="scrollKanban('right')" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs transition">
+              <i class="fa-solid fa-chevron-right"></i>
             </button>
           </div>
+        </div>
+
+        <!-- Columns Container -->
+        <div id="kanban-wrapper" class="flex-1 flex overflow-x-auto gap-4 items-start pb-4 kanban-scroll">
+          
+          <!-- Novo Lead -->
+          <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-3 flex flex-col max-h-full min-w-[280px] w-[280px] shrink-0 glass-panel">
+            <div class="flex justify-between items-center mb-3 px-1">
+              <span class="font-bold text-xs uppercase tracking-wider text-slate-300 flex items-center space-x-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+                <span>Novo Lead</span>
+              </span>
+              <span id="count-novo_lead" class="text-xs font-bold bg-slate-800 text-slate-300 px-2.5 py-0.5 rounded-full border border-slate-700">0</span>
+            </div>
+            <div id="col-novo_lead" ondrop="drop(event, 'novo_lead')" ondragover="allowDrop(event)" class="space-y-2.5 overflow-y-auto flex-1 min-h-[200px] custom-scroll"></div>
+          </div>
+
+          <!-- Contato Inicial -->
+          <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-3 flex flex-col max-h-full min-w-[280px] w-[280px] shrink-0 glass-panel">
+            <div class="flex justify-between items-center mb-3 px-1">
+              <span class="font-bold text-xs uppercase tracking-wider text-slate-300 flex items-center space-x-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                <span>Contato Inicial</span>
+              </span>
+              <span id="count-contato_inicial" class="text-xs font-bold bg-slate-800 text-slate-300 px-2.5 py-0.5 rounded-full border border-slate-700">0</span>
+            </div>
+            <div id="col-contato_inicial" ondrop="drop(event, 'contato_inicial')" ondragover="allowDrop(event)" class="space-y-2.5 overflow-y-auto flex-1 min-h-[200px] custom-scroll"></div>
+          </div>
+
+          <!-- Proposta -->
+          <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-3 flex flex-col max-h-full min-w-[280px] w-[280px] shrink-0 glass-panel">
+            <div class="flex justify-between items-center mb-3 px-1">
+              <span class="font-bold text-xs uppercase tracking-wider text-slate-300 flex items-center space-x-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
+                <span>Proposta</span>
+              </span>
+              <span id="count-proposta" class="text-xs font-bold bg-slate-800 text-slate-300 px-2.5 py-0.5 rounded-full border border-slate-700">0</span>
+            </div>
+            <div id="col-proposta" ondrop="drop(event, 'proposta')" ondragover="allowDrop(event)" class="space-y-2.5 overflow-y-auto flex-1 min-h-[200px] custom-scroll"></div>
+          </div>
+
+          <!-- Negociação -->
+          <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-3 flex flex-col max-h-full min-w-[280px] w-[280px] shrink-0 glass-panel">
+            <div class="flex justify-between items-center mb-3 px-1">
+              <span class="font-bold text-xs uppercase tracking-wider text-slate-300 flex items-center space-x-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
+                <span>Negociação</span>
+              </span>
+              <span id="count-negociacao" class="text-xs font-bold bg-slate-800 text-slate-300 px-2.5 py-0.5 rounded-full border border-slate-700">0</span>
+            </div>
+            <div id="col-negociacao" ondrop="drop(event, 'negociacao')" ondragover="allowDrop(event)" class="space-y-2.5 overflow-y-auto flex-1 min-h-[200px] custom-scroll"></div>
+          </div>
+
+          <!-- Aguardando Pagamento -->
+          <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-3 flex flex-col max-h-full min-w-[280px] w-[280px] shrink-0 glass-panel">
+            <div class="flex justify-between items-center mb-3 px-1">
+              <span class="font-bold text-xs uppercase tracking-wider text-slate-300 flex items-center space-x-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-cyan-500"></span>
+                <span>Aguardando</span>
+              </span>
+              <span id="count-aguardando" class="text-xs font-bold bg-slate-800 text-slate-300 px-2.5 py-0.5 rounded-full border border-slate-700">0</span>
+            </div>
+            <div id="col-aguardando" ondrop="drop(event, 'aguardando')" ondragover="allowDrop(event)" class="space-y-2.5 overflow-y-auto flex-1 min-h-[200px] custom-scroll"></div>
+          </div>
+
+          <!-- Ganho -->
+          <div class="bg-emerald-950/30 border border-emerald-500/20 rounded-2xl p-3 flex flex-col max-h-full min-w-[280px] w-[280px] shrink-0 glass-panel">
+            <div class="flex justify-between items-center mb-3 px-1">
+              <span class="font-bold text-xs uppercase tracking-wider text-emerald-400 flex items-center space-x-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                <span>Ganho (Fechado)</span>
+              </span>
+              <span id="count-ganho" class="text-xs font-bold bg-emerald-900/60 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-700">0</span>
+            </div>
+            <div id="col-ganho" ondrop="drop(event, 'ganho')" ondragover="allowDrop(event)" class="space-y-2.5 overflow-y-auto flex-1 min-h-[200px] custom-scroll"></div>
+          </div>
+
+          <!-- Perdido -->
+          <div class="bg-rose-950/20 border border-rose-500/20 rounded-2xl p-3 flex flex-col max-h-full min-w-[280px] w-[280px] shrink-0 glass-panel">
+            <div class="flex justify-between items-center mb-3 px-1">
+              <span class="font-bold text-xs uppercase tracking-wider text-rose-400 flex items-center space-x-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                <span>Perdido</span>
+              </span>
+              <span id="count-perdido" class="text-xs font-bold bg-rose-900/60 text-rose-300 px-2.5 py-0.5 rounded-full border border-rose-700">0</span>
+            </div>
+            <div id="col-perdido" ondrop="drop(event, 'perdido')" ondragover="allowDrop(event)" class="space-y-2.5 overflow-y-auto flex-1 min-h-[200px] custom-scroll"></div>
+          </div>
 
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- 5. CLIENTES TAB -->
-    <section id="tab-clientes" class="tab-content hidden space-y-4">
-      <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
-        <div class="w-full md:w-1/3">
-          <div class="relative">
-            <i class="fa-solid fa-search absolute left-3 top-3 text-slate-400 text-xs"></i>
-            <input type="text" id="search-clientes" oninput="renderClientes()" placeholder="Buscar cliente por nome ou WhatsApp..." class="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-xl text-xs focus:ring-blue-500 focus:border-blue-500" />
+      <!-- 3. COTAS & ASSEMBLEIAS -->
+      <section id="tab-cotas" class="tab-content hidden space-y-6">
+        <div class="flex justify-between items-center glass-panel p-4 rounded-2xl">
+          <div>
+            <h2 class="font-bold text-white text-base">Gestão de Cotas & Calendário de Assembleias</h2>
+            <p class="text-xs text-slate-400">Monitore vencimentos e datas de lances ativas.</p>
+          </div>
+          <button onclick="openCotaModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition shadow">
+            <i class="fa-solid fa-plus mr-1"></i> Nova Cota
+          </button>
+        </div>
+
+        <div id="cotas-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Renderizado via JS -->
+        </div>
+      </section>
+
+      <!-- 4. SIMULADOR DE LANCE -->
+      <section id="tab-simulador" class="tab-content hidden max-w-4xl mx-auto space-y-6">
+        <div class="glass-panel p-6 rounded-2xl space-y-6">
+          <div class="border-b border-slate-800 pb-4">
+            <h2 class="font-extrabold text-xl font-display text-white flex items-center space-x-2">
+              <i class="fa-solid fa-calculator text-indigo-400"></i>
+              <span>Calculadora & Simulador de Lance</span>
+            </h2>
+            <p class="text-xs text-slate-400 mt-1">Gere simulações de lances livres, embutidos e envie propostas completas no WhatsApp.</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Parâmetros -->
+            <div class="space-y-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">Valor do Crédito (R$)</label>
+                <input type="number" id="sim-credito" value="200000" oninput="calcularSimulacao()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:border-indigo-500 focus:outline-none" />
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-300 mb-1">Prazo (Meses)</label>
+                  <input type="number" id="sim-prazo" value="180" oninput="calcularSimulacao()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:border-indigo-500 focus:outline-none" />
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-300 mb-1">Taxa Adm. (%)</label>
+                  <input type="number" id="sim-taxa" value="18" step="0.5" oninput="calcularSimulacao()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:border-indigo-500 focus:outline-none" />
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-300 mb-1">Lance Livre (R$)</label>
+                  <input type="number" id="sim-lance-livre" value="40000" oninput="calcularSimulacao()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:border-indigo-500 focus:outline-none" />
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-300 mb-1">Lance Embutido (%)</label>
+                  <input type="number" id="sim-lance-embutido-pct" value="10" min="0" max="30" oninput="calcularSimulacao()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:border-indigo-500 focus:outline-none" />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">Abatimento Pós-Contemplação</label>
+                <select id="sim-modo-abatimento" onchange="calcularSimulacao()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:border-indigo-500 focus:outline-none">
+                  <option value="parcela">Reduzir Parcela Mensal</option>
+                  <option value="prazo">Reduzir Prazo (Quantidade de Meses)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Resultado -->
+            <div class="bg-slate-900/90 p-5 rounded-2xl border border-slate-800 flex flex-col justify-between">
+              <div class="space-y-3">
+                <h3 class="font-bold text-sm text-white border-b border-slate-800 pb-2">Projeção da Proposta</h3>
+
+                <div class="flex justify-between text-xs py-1 border-b border-slate-800/60">
+                  <span class="text-slate-400">Crédito Líquido na Mão:</span>
+                  <span id="res-credito-liquido" class="font-bold text-emerald-400">R$ 0,00</span>
+                </div>
+
+                <div class="flex justify-between text-xs py-1 border-b border-slate-800/60">
+                  <span class="text-slate-400">Parcela Inicial:</span>
+                  <span id="res-parcela-inicial" class="font-bold text-white">R$ 0,00</span>
+                </div>
+
+                <div class="flex justify-between text-xs py-1 border-b border-slate-800/60">
+                  <span class="text-slate-400">Lance Total Ofertado:</span>
+                  <span id="res-lance-total" class="font-bold text-indigo-400">R$ 0,00 (0%)</span>
+                </div>
+
+                <div class="bg-indigo-950/40 p-3 rounded-xl border border-indigo-500/20 space-y-1 mt-4">
+                  <span class="text-[10px] text-indigo-300 font-bold uppercase tracking-wider block">Pós-Contemplação:</span>
+                  <p id="res-valor-pos" class="font-extrabold text-white text-sm">R$ 0,00</p>
+                </div>
+              </div>
+
+              <button onclick="enviarPropostaSimuladaWhats()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-xs transition shadow flex items-center justify-center space-x-2 mt-4">
+                <i class="fa-brands fa-whatsapp text-base"></i>
+                <span>Enviar Simulação pelo WhatsApp</span>
+              </button>
+            </div>
           </div>
         </div>
-        <div class="text-xs text-slate-500">
-          Total de registros: <span id="total-clientes-registros" class="font-bold text-slate-800">0</span>
-        </div>
-      </div>
+      </section>
 
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider font-semibold border-b border-slate-200">
-                <th class="py-3 px-4">Nome do Cliente</th>
-                <th class="py-3 px-4">WhatsApp</th>
-                <th class="py-3 px-4">Interesse</th>
-                <th class="py-3 px-4">Etapa Funil</th>
-                <th class="py-3 px-4 text-center">Ações</th>
+      <!-- 5. CARTEIRA DE CLIENTES -->
+      <section id="tab-clientes" class="tab-content hidden space-y-4">
+        <div class="glass-panel p-4 rounded-2xl flex items-center justify-between">
+          <input type="text" id="search-clientes" oninput="renderClientes()" placeholder="Buscar cliente por nome ou WhatsApp..." class="bg-slate-900 border border-slate-700 text-xs rounded-xl px-3 py-2 text-white w-72 focus:outline-none focus:border-indigo-500" />
+          <span class="text-xs text-slate-400">Total: <b id="total-clientes-registros" class="text-white">0</b></span>
+        </div>
+
+        <div class="glass-panel rounded-2xl overflow-hidden">
+          <table class="w-full text-left text-xs text-slate-300">
+            <thead class="bg-slate-900/80 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+              <tr>
+                <th class="p-3.5">Cliente</th>
+                <th class="p-3.5">WhatsApp</th>
+                <th class="p-3.5">Interesse / Crédito</th>
+                <th class="p-3.5">Etapa Funil</th>
+                <th class="p-3.5 text-center">Ações</th>
               </tr>
             </thead>
-            <tbody id="clientes-table-body" class="divide-y divide-slate-100 text-sm">
+            <tbody id="clientes-table-body" class="divide-y divide-slate-800/60">
               <!-- Renderizado via JS -->
             </tbody>
           </table>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- 6. CONFIG & SQL TAB -->
-    <section id="tab-config" class="tab-content hidden space-y-6">
-      <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
-        <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-          <i class="fa-solid fa-database text-blue-600"></i> Script SQL para Criação das Tabelas no Supabase
-        </h2>
-        <p class="text-xs text-slate-600 leading-relaxed">
-          Para que a sincronização funcione perfeitamente, copie o código SQL abaixo e rode no <b>SQL Editor</b> dentro do seu painel do Supabase:
-        </p>
-
-        <div class="relative">
-          <button onclick="copiarSQL()" class="absolute top-3 right-3 bg-slate-800 hover:bg-slate-700 text-white text-xs px-3 py-1.5 rounded-lg shadow flex items-center gap-1.5 transition">
-            <i class="fa-regular fa-copy"></i>
-            <span>Copiar SQL</span>
-          </button>
-          <pre id="sql-script-code" class="bg-slate-900 text-emerald-400 p-4 rounded-xl text-xs font-mono overflow-x-auto max-h-96 leading-5">
--- 1. Tabela de Leads / Funil de Vendas
+      <!-- 6. BANCO & SCRIPT SQL -->
+      <section id="tab-config" class="tab-content hidden space-y-4">
+        <div class="glass-panel p-6 rounded-2xl space-y-4">
+          <h2 class="font-bold text-white text-base">Script SQL do Supabase</h2>
+          <p class="text-xs text-slate-400">Rode este script no **SQL Editor** do Supabase para criar as tabelas necessárias:</p>
+          <pre id="sql-script-code" class="bg-slate-900 p-4 rounded-xl text-xs font-mono text-emerald-400 border border-slate-800 overflow-x-auto">
 CREATE TABLE IF NOT EXISTS leads (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     nome VARCHAR(100) NOT NULL,
@@ -547,7 +510,6 @@ CREATE TABLE IF NOT EXISTS leads (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 2. Tabela de Cotas
 CREATE TABLE IF NOT EXISTS cotas (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     lead_id UUID REFERENCES leads(id) ON DELETE SET NULL,
@@ -563,112 +525,106 @@ CREATE TABLE IF NOT EXISTS cotas (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 3. Tabela de Lances
-CREATE TABLE IF NOT EXISTS lances (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    cota_id UUID REFERENCES cotas(id) ON DELETE CASCADE,
-    mes_ano VARCHAR(7) NOT NULL,
-    tipo_lance VARCHAR(30) NOT NULL,
-    percentual DECIMAL(5,2) NOT NULL,
-    valor DECIMAL(12,2),
-    contemplado BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Desabilitar RLS para acesso anonimo simples
 ALTER TABLE leads DISABLE ROW LEVEL SECURITY;
 ALTER TABLE cotas DISABLE ROW LEVEL SECURITY;
-ALTER TABLE lances DISABLE ROW LEVEL SECURITY;
           </pre>
         </div>
-      </div>
-    </section>
+      </section>
 
-  </main>
+    </main>
+  </div>
 
-  <!-- ==================== MODALS ==================== -->
-
-  <!-- MODAL: CONFIGURAÇÃO SUPABASE -->
-  <div id="modal-config" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
-      <div class="bg-slate-900 text-white p-4 flex justify-between items-center">
-        <h3 class="font-bold text-sm flex items-center gap-2">
-          <i class="fa-solid fa-plug text-blue-400"></i> Conexão Supabase
+  <!-- MODAL: TEMPLATES WHATSAPP -->
+  <div id="modal-whats" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md overflow-hidden glass-panel">
+      <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+        <h3 class="font-bold text-sm text-white flex items-center space-x-2">
+          <i class="fa-brands fa-whatsapp text-emerald-400"></i>
+          <span>Mensagens Prontas - Consórcio</span>
         </h3>
+        <button onclick="closeWhatsModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="p-5 space-y-3">
+        <button onclick="sendWhatsTemplate('tabela')" class="w-full text-left p-3 rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 transition space-y-1">
+          <p class="font-bold text-xs text-indigo-400">1. Apresentação de Tabelas</p>
+          <p class="text-[11px] text-slate-400">Apresenta prazos e parcelas para o crédito pretendido do cliente.</p>
+        </button>
+
+        <button onclick="sendWhatsTemplate('lance')" class="w-full text-left p-3 rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 transition space-y-1">
+          <p class="font-bold text-xs text-amber-400">2. Estratégia de Lance Embutido</p>
+          <p class="text-[11px] text-slate-400">Explica como usar até 30% da própria cota para dar o lance.</p>
+        </button>
+
+        <button onclick="sendWhatsTemplate('assembleia')" class="w-full text-left p-3 rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 transition space-y-1">
+          <p class="font-bold text-xs text-emerald-400">3. Convite para Assembleia</p>
+          <p class="text-[11px] text-slate-400">Avisa sobre a proximidade da assembleia e oferta de lance.</p>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CONFIG SUPABASE -->
+  <div id="modal-config" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md overflow-hidden glass-panel">
+      <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+        <h3 class="font-bold text-sm text-white">Conexão Supabase Cloud</h3>
         <button onclick="closeConfigModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
       </div>
-
-      <div class="p-6 space-y-4">
+      <div class="p-5 space-y-4 text-xs">
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Supabase Project URL</label>
-          <input type="text" id="cfg-url" placeholder="https://xyzcompany.supabase.co" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500" />
+          <label class="block text-slate-300 font-semibold mb-1">Project URL</label>
+          <input type="text" id="cfg-url" placeholder="https://xyz.supabase.co" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-indigo-500" />
         </div>
-
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Supabase Anon Key</label>
-          <input type="password" id="cfg-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500" />
+          <label class="block text-slate-300 font-semibold mb-1">Anon Key</label>
+          <input type="password" id="cfg-key" placeholder="eyJhbG..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-indigo-500" />
         </div>
-
-        <div id="cfg-status-msg" class="text-xs p-3 rounded-xl hidden"></div>
-
-        <div class="flex justify-between items-center pt-3 border-t">
-          <button onclick="limparCredenciais()" class="text-xs text-rose-600 font-semibold hover:underline">Desconectar / Limpar</button>
-          
-          <div class="flex space-x-2">
-            <button onclick="testarConexaoSupabase()" class="px-3 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-bold">
-              Testar
-            </button>
-            <button onclick="salvarConfiguracao()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold shadow">
-              Salvar & Sincronizar
-            </button>
-          </div>
+        <div class="flex justify-between pt-2">
+          <button onclick="limparCredenciais()" class="text-rose-400 font-semibold">Desconectar</button>
+          <button onclick="salvarConfiguracao()" class="bg-indigo-600 text-white font-bold px-4 py-2 rounded-xl">Salvar & Sincronizar</button>
         </div>
       </div>
     </div>
   </div>
 
   <!-- MODAL: LEAD (NOVO / EDITAR) -->
-  <div id="modal-lead" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
-      <div class="bg-slate-900 text-white p-4 flex justify-between items-center">
-        <h3 id="modal-lead-title" class="font-bold text-sm">Novo Lead</h3>
+  <div id="modal-lead" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md overflow-hidden glass-panel">
+      <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+        <h3 id="modal-lead-title" class="font-bold text-sm text-white">Novo Lead</h3>
         <button onclick="closeLeadModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
       </div>
-
-      <form id="form-lead" onsubmit="saveLead(event)" class="p-6 space-y-3">
+      <form id="form-lead" onsubmit="saveLead(event)" class="p-5 space-y-3 text-xs">
         <input type="hidden" id="lead-id" />
-
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Nome do Cliente *</label>
-          <input type="text" id="lead-nome" required placeholder="Ex: Lucas Mendes" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500" />
+          <label class="block text-slate-300 font-semibold mb-1">Nome do Cliente *</label>
+          <input type="text" id="lead-nome" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-indigo-500" />
         </div>
-
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">WhatsApp *</label>
-            <input type="text" id="lead-whatsapp" required placeholder="11988887777" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500" />
+            <label class="block text-slate-300 font-semibold mb-1">WhatsApp *</label>
+            <input type="text" id="lead-whatsapp" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-indigo-500" />
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Tipo de Bem</label>
-            <select id="lead-tipo" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500">
+            <label class="block text-slate-300 font-semibold mb-1">Tipo de Bem</label>
+            <select id="lead-tipo" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-indigo-500">
               <option value="Imóvel">Imóvel</option>
               <option value="Automóvel">Automóvel</option>
-              <option value="Pesados">Pesados / Máquinas</option>
-              <option value="Serviços">Serviços</option>
+              <option value="Pesados">Pesados</option>
             </select>
           </div>
         </div>
-
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Crédito Pretendido (R$)</label>
-            <input type="number" id="lead-credito" required placeholder="250000" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500" />
+            <label class="block text-slate-300 font-semibold mb-1">Crédito (R$)</label>
+            <input type="number" id="lead-credito" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-indigo-500" />
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Etapa Funil</label>
-            <select id="lead-etapa" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500">
+            <label class="block text-slate-300 font-semibold mb-1">Etapa Funil</label>
+            <select id="lead-etapa" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-indigo-500">
               <option value="novo_lead">Novo Lead</option>
-              <option value="contatto_inicial">Contato Inicial</option>
+              <option value="contato_inicial">Contato Inicial</option>
               <option value="proposta">Proposta</option>
               <option value="negociacao">Negociação</option>
               <option value="aguardando">Aguardando Pagamento</option>
@@ -677,122 +633,49 @@ ALTER TABLE lances DISABLE ROW LEVEL SECURITY;
             </select>
           </div>
         </div>
-
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Observações</label>
-          <textarea id="lead-obs" rows="2" placeholder="Expectativa de parcelas, lance disponível..." class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500"></textarea>
+          <label class="block text-slate-300 font-semibold mb-1">Observações</label>
+          <textarea id="lead-obs" rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-indigo-500"></textarea>
         </div>
-
-        <div class="pt-3 flex justify-end space-x-2 border-t">
-          <button type="button" onclick="closeLeadModal()" class="px-4 py-2 border rounded-xl text-xs font-semibold text-slate-600">Cancelar</button>
-          <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold shadow">Salvar Lead</button>
+        <div class="pt-3 flex justify-end space-x-2 border-t border-slate-800">
+          <button type="button" onclick="closeLeadModal()" class="px-4 py-2 border border-slate-700 rounded-xl text-slate-300">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-indigo-600 text-white font-bold rounded-xl">Salvar Lead</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- MODAL: COTA -->
-  <div id="modal-cota" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
-      <div class="bg-slate-900 text-white p-4 flex justify-between items-center">
-        <h3 class="font-bold text-sm">Cadastrar Cota Vendida</h3>
-        <button onclick="closeCotaModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-
-      <form id="form-cota" onsubmit="saveCota(event)" class="p-6 space-y-3">
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Cliente Vinculado</label>
-          <select id="cota-lead-id" required class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500">
-            <!-- Populado via JS -->
-          </select>
-        </div>
-
-        <div class="grid grid-cols-3 gap-2">
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Admin</label>
-            <input type="text" id="cota-admin" required placeholder="Porto" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Grupo</label>
-            <input type="text" id="cota-grupo" required placeholder="1020" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Cota</label>
-            <input type="text" id="cota-numero" required placeholder="055" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500" />
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Crédito (R$)</label>
-            <input type="number" id="cota-credito" required placeholder="200000" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Parcela (R$)</label>
-            <input type="number" id="cota-parcela" required placeholder="1250" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500" />
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Dia Vencimento</label>
-            <input type="number" id="cota-vencimento" min="1" max="31" required placeholder="10" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Dia Assembleia</label>
-            <input type="number" id="cota-assembleia" min="1" max="31" required placeholder="18" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500" />
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Estratégia Lance</label>
-            <select id="cota-lance" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500">
-              <option value="Livre">Lance Livre</option>
-              <option value="Embutido">Embutido</option>
-              <option value="Fixo">Lance Fixo</option>
-              <option value="Sem Oferta">Apenas Sorteio</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Status</label>
-            <select id="cota-status" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500">
-              <option value="ativa">Ativa</option>
-              <option value="contemplada">Contemplada</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="pt-3 flex justify-end space-x-2 border-t">
-          <button type="button" onclick="closeCotaModal()" class="px-4 py-2 border rounded-xl text-xs font-semibold text-slate-600">Cancelar</button>
-          <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow">Salvar Cota</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- ==================== JAVASCRIPT LOGIC ==================== -->
+  <!-- ==================== JAVASCRIPT ==================== -->
   <script>
-    const MOCK_LEADS = [
-      { id: '101', nome: 'Ricardo Oliveira', whatsapp: '11999887766', tipo: 'Imóvel', credito: 300000, etapa: 'proposta', obs: 'Prefere imóvel residencial em SP.' },
-      { id: '102', nome: 'Beatriz Santos', whatsapp: '21988776655', tipo: 'Automóvel', credito: 75000, etapa: 'ganho', obs: 'Cota de auto já emitida.' },
-      { id: '103', nome: 'Empresa TransLog', whatsapp: '31977665544', tipo: 'Pesados', credito: 600000, etapa: 'negociacao', obs: 'Renovação de frota de caminhões.' }
-    ];
-
-    const MOCK_COTAS = [
-      { id: '201', lead_id: '102', administradora: 'Porto Seguro', grupo: '3020', cota: '112', credito: 75000, parcela: 580, vencimento: 10, assembleia: 16, lance: 'Livre', status: 'ativa' }
-    ];
-
-    let supabaseClient = null;
-    let isConnected = false;
-
     let leads = [];
     let cotas = [];
+    let supabaseClient = null;
+    let isConnected = false;
+    let currentFilterBem = 'todos';
+    let currentWhatsLead = null;
 
     window.addEventListener('DOMContentLoaded', () => {
       initSupabaseFromStorage();
       calcularSimulacao();
     });
+
+    // Toggle Sidebar Retrátil
+    function toggleSidebar() {
+      const sb = document.getElementById('sidebar');
+      const icon = document.getElementById('sidebar-icon');
+      sb.classList.toggle('w-64');
+      sb.classList.toggle('w-20');
+      
+      document.querySelectorAll('.sidebar-label').forEach(el => {
+        el.classList.toggle('hidden');
+      });
+
+      if (sb.classList.contains('w-20')) {
+        icon.className = "fa-solid fa-angles-right text-xs";
+      } else {
+        icon.className = "fa-solid fa-angles-left text-xs";
+      }
+    }
 
     function initSupabaseFromStorage() {
       const url = localStorage.getItem('pedro_crm_sp_url');
@@ -802,240 +685,183 @@ ALTER TABLE lances DISABLE ROW LEVEL SECURITY;
         document.getElementById('cfg-url').value = url;
         document.getElementById('cfg-key').value = key;
         try {
-          supabaseClient = window.supabase.createClient(url, key);
+          // Limpa URL
+          const cleanUrl = url.replace(/\/rest\/v1\/?$/, '').replace(/\/$/, '');
+          supabaseClient = window.supabase.createClient(cleanUrl, key);
           testConnectionAndLoad();
           return;
         } catch (err) {
-          console.error("Erro ao inicializar Supabase:", err);
+          console.error("Erro Supabase:", err);
         }
       }
-
       setLocalMode();
     }
 
     async function testConnectionAndLoad() {
       if (!supabaseClient) return setLocalMode();
-
-      updateSyncBadge('syncing');
-
       try {
         const { data, error } = await supabaseClient.from('leads').select('id').limit(1);
-
         if (error) throw error;
-
         setConnectedMode();
         await syncData();
       } catch (err) {
-        console.warn("Falha na conexão Supabase, alternando para local:", err);
         setLocalMode();
       }
     }
 
     function setConnectedMode() {
       isConnected = true;
-      const badge = document.getElementById('conn-badge');
-      const dot = document.getElementById('conn-dot');
-      const text = document.getElementById('conn-text');
-      const banner = document.getElementById('local-warning-banner');
-
-      badge.className = "px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1";
-      dot.className = "w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse";
-      text.innerText = "Supabase On";
-      banner.classList.add('hidden');
+      document.getElementById('conn-text').innerText = "Supabase On";
+      document.getElementById('conn-subtext').innerText = "Sincronizado na Nuvem";
+      document.getElementById('conn-badge').className = "px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 flex items-center space-x-2";
+      document.getElementById('conn-dot').className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0";
+      document.getElementById('local-warning-banner').classList.add('hidden');
     }
 
     function setLocalMode() {
       isConnected = false;
       supabaseClient = null;
+      document.getElementById('conn-text').innerText = "Modo Local";
+      document.getElementById('conn-subtext').innerText = "Supabase Desconectado";
+      document.getElementById('conn-badge').className = "px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 flex items-center space-x-2";
+      document.getElementById('conn-dot').className = "w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0";
+      document.getElementById('local-warning-banner').classList.remove('hidden');
 
-      const badge = document.getElementById('conn-badge');
-      const dot = document.getElementById('conn-dot');
-      const text = document.getElementById('conn-text');
-      const banner = document.getElementById('local-warning-banner');
-
-      badge.className = "px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1";
-      dot.className = "w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse";
-      text.innerText = "Modo Local";
-      banner.classList.remove('hidden');
-
-      loadLocalStorageData();
+      const storedLeads = localStorage.getItem('pedro_crm_leads_data');
+      leads = storedLeads ? JSON.parse(storedLeads) : [];
       renderAll();
     }
 
-    function loadLocalStorageData() {
-      const storedLeads = localStorage.getItem('pedro_crm_leads_data');
-      const storedCotas = localStorage.getItem('pedro_crm_cotas_data');
-
-      leads = storedLeads ? JSON.parse(storedLeads) : MOCK_LEADS;
-      cotas = storedCotas ? JSON.parse(storedCotas) : MOCK_COTAS;
-
-      saveLocalStorageData();
-    }
-
-    function saveLocalStorageData() {
-      localStorage.setItem('pedro_crm_leads_data', JSON.stringify(leads));
-      localStorage.setItem('pedro_crm_cotas_data', JSON.stringify(cotas));
-    }
-
     async function syncData() {
-      const icon = document.getElementById('sync-icon');
-      icon.classList.add('fa-spin');
-
+      document.getElementById('sync-icon').classList.add('fa-spin');
       if (isConnected && supabaseClient) {
         try {
-          const [resLeads, resCotas] = await Promise.all([
+          const [resL, resC] = await Promise.all([
             supabaseClient.from('leads').select('*').order('created_at', { ascending: false }),
             supabaseClient.from('cotas').select('*').order('created_at', { ascending: false })
           ]);
-
-          if (resLeads.data) leads = resLeads.data;
-          if (resCotas.data) cotas = resCotas.data;
-
-          saveLocalStorageData();
-        } catch (err) {
-          console.error("Erro ao puxar dados do Supabase:", err);
-        }
-      } else {
-        loadLocalStorageData();
+          if (resL.data) leads = resL.data;
+          if (resC.data) cotas = resC.data;
+          localStorage.setItem('pedro_crm_leads_data', JSON.stringify(leads));
+        } catch (err) {}
       }
-
       setTimeout(() => {
-        icon.classList.remove('fa-spin');
+        document.getElementById('sync-icon').classList.remove('fa-spin');
         renderAll();
       }, 300);
-    }
-
-    function updateSyncBadge(state) {
-      const icon = document.getElementById('sync-icon');
-      if (state === 'syncing') icon.classList.add('fa-spin');
-      else icon.classList.remove('fa-spin');
     }
 
     function renderAll() {
       renderDashboard();
       renderKanban();
-      renderCotas();
       renderClientes();
     }
 
     function renderDashboard() {
+      const fmt = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v || 0);
       const totalLeads = leads.length;
-      
-      const negociacaoLeads = leads.filter(l => ['proposta', 'negociacao', 'aguardando'].includes(l.etapa));
-      const creditoNegociacao = negociacaoLeads.reduce((acc, l) => acc + Number(l.credito || 0), 0);
-
-      const ganhoLeads = leads.filter(l => l.etapa === 'ganho');
-      const creditoGanho = ganhoLeads.reduce((acc, l) => acc + Number(l.credito || 0), 0) + 
-                            cotas.reduce((acc, c) => acc + Number(c.credito || 0), 0);
-
-      const comissao = creditoGanho * 0.015;
-
-      const fmt = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
+      const negociacao = leads.filter(l => ['proposta', 'negociacao', 'aguardando'].includes(l.etapa));
+      const credNeg = negociacao.reduce((acc, l) => acc + Number(l.credito || 0), 0);
+      const ganho = leads.filter(l => l.etapa === 'ganho');
+      const credGanho = ganho.reduce((acc, l) => acc + Number(l.credito || 0), 0);
+      const comissao = credGanho * 0.015;
 
       document.getElementById('dash-total-leads').innerText = totalLeads;
-      document.getElementById('dash-credito-negociacao').innerText = fmt(creditoNegociacao);
-      document.getElementById('dash-credito-ganho').innerText = fmt(creditoGanho);
+      document.getElementById('dash-credito-negociacao').innerText = fmt(credNeg);
+      document.getElementById('dash-credito-ganho').innerText = fmt(credGanho);
       document.getElementById('dash-comissao').innerText = fmt(comissao);
 
-      document.getElementById('stat-credito').innerText = fmt(creditoGanho);
-      document.getElementById('stat-vendas').innerText = ganhoLeads.length + cotas.length;
-      document.getElementById('stat-comissao').innerText = fmt(comissao);
+      document.getElementById('hdr-credito').innerText = fmt(credGanho);
+      document.getElementById('hdr-vendas').innerText = ganho.length;
+      document.getElementById('hdr-comissao').innerText = fmt(comissao);
 
-      const assList = document.getElementById('dash-assembleias-list');
-      assList.innerHTML = '';
-      if (cotas.length === 0) {
-        assList.innerHTML = `<p class="text-xs text-slate-400 italic">Nenhuma cota cadastrada.</p>`;
-      } else {
-        cotas.slice(0, 5).forEach(c => {
-          const item = document.createElement('div');
-          item.className = 'flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100 text-xs';
-          item.innerHTML = `
-            <div>
-              <span class="font-bold text-slate-800">${c.administradora} (Gr: ${c.grupo} / Cota: ${c.cota})</span>
-              <span class="block text-[10px] text-slate-500">Dia Venc: ${c.vencimento}</span>
-            </div>
-            <span class="bg-amber-100 text-amber-800 font-bold px-2 py-1 rounded-lg text-[10px]">
-              Assembleia Dia ${c.assembleia}
-            </span>
-          `;
-          assList.appendChild(item);
-        });
-      }
-
-      const funilContainer = document.getElementById('dash-funil-breakdown');
-      const etapasDesc = {
+      // Breakdown Funil
+      const funilEl = document.getElementById('dash-funil-breakdown');
+      funilEl.innerHTML = '';
+      const etapas = {
         'novo_lead': 'Novo Lead',
         'contato_inicial': 'Contato Inicial',
         'proposta': 'Proposta',
         'negociacao': 'Negociação',
         'aguardando': 'Aguardando Pagamento',
-        'ganho': 'Ganho (Fechado)',
-        'perdido': 'Perdido'
+        'ganho': 'Ganho (Fechado)'
       };
 
-      funilContainer.innerHTML = '';
-      Object.keys(etapasDesc).forEach(eKey => {
+      Object.keys(etapas).forEach(eKey => {
         const count = leads.filter(l => l.etapa === eKey).length;
         const pct = totalLeads > 0 ? ((count / totalLeads) * 100).toFixed(0) : 0;
-
-        const row = document.createElement('div');
-        row.className = 'space-y-1';
-        row.innerHTML = `
-          <div class="flex justify-between text-slate-600 font-medium">
-            <span>${etapasDesc[eKey]}</span>
-            <span>${count} (${pct}%)</span>
+        const div = document.createElement('div');
+        div.className = "space-y-1";
+        div.innerHTML = `
+          <div class="flex justify-between font-semibold">
+            <span class="text-slate-300">${etapas[eKey]}</span>
+            <span class="text-indigo-400">${count} (${pct}%)</span>
           </div>
-          <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-            <div class="bg-blue-600 h-full rounded-full" style="width: ${pct}%"></div>
+          <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+            <div class="bg-indigo-500 h-full rounded-full" style="width: ${pct}%"></div>
           </div>
         `;
-        funilContainer.appendChild(row);
+        funilEl.appendChild(div);
       });
     }
 
-    // KANBAN
-    const KANBAN_STAGES = ['novo_lead', 'contato_inicial', 'proposta', 'negociacao', 'aguardando', 'ganho', 'perdido'];
+    // KANBAN MODERNO
+    const STAGES = ['novo_lead', 'contato_inicial', 'proposta', 'negociacao', 'aguardando', 'ganho', 'perdido'];
+
+    function filterKanban(tipo) {
+      currentFilterBem = tipo;
+      document.querySelectorAll('.filter-bem-btn').forEach(btn => {
+        btn.className = "filter-bem-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition";
+      });
+      document.getElementById(`filter-bem-${tipo}`).className = "filter-bem-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white transition";
+      renderKanban();
+    }
 
     function renderKanban() {
-      KANBAN_STAGES.forEach(stage => {
+      STAGES.forEach(stage => {
         const colEl = document.getElementById(`col-${stage}`);
         const countEl = document.getElementById(`count-${stage}`);
         if (!colEl) return;
 
-        const stageLeads = leads.filter(l => l.etapa === stage);
-        countEl.innerText = stageLeads.length;
+        let filteredLeads = leads.filter(l => l.etapa === stage);
+        if (currentFilterBem !== 'todos') {
+          filteredLeads = filteredLeads.filter(l => l.tipo === currentFilterBem);
+        }
+
+        countEl.innerText = filteredLeads.length;
         colEl.innerHTML = '';
 
-        stageLeads.forEach(lead => {
-          colEl.appendChild(createKanbanCard(lead));
+        filteredLeads.forEach(lead => {
+          colEl.appendChild(createCard(lead));
         });
       });
     }
 
-    function createKanbanCard(lead) {
+    function createCard(lead) {
       const card = document.createElement('div');
-      card.className = 'bg-white p-3 rounded-xl shadow-sm border border-slate-200 cursor-grab hover:shadow-md transition group';
+      card.className = "bg-slate-900 border border-slate-800/80 rounded-xl p-3 space-y-2 cursor-grab hover:border-slate-700 transition shadow-md";
       card.draggable = true;
       card.ondragstart = (e) => drag(e, lead.id);
 
-      const valFormatted = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(lead.credito || 0);
+      const fmtCred = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(lead.credito || 0);
 
       card.innerHTML = `
-        <div class="flex justify-between items-start mb-1">
-          <span class="font-bold text-xs text-slate-800 line-clamp-1">${lead.nome}</span>
-          <span class="text-[9px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-medium">${lead.tipo || 'Consórcio'}</span>
+        <div class="flex justify-between items-start">
+          <span class="font-bold text-xs text-white line-clamp-1">${lead.nome}</span>
+          <span class="text-[9px] font-bold px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-800">${lead.tipo || 'Imóvel'}</span>
         </div>
-        <p class="text-xs font-bold text-blue-600 mb-2">${valFormatted}</p>
-        ${lead.obs ? `<p class="text-[10px] text-slate-500 mb-2 line-clamp-2 bg-slate-50 p-1 rounded border border-slate-100">${lead.obs}</p>` : ''}
+        <p class="font-extrabold text-sm text-indigo-400 font-display">${fmtCred}</p>
+        ${lead.obs ? `<p class="text-[10px] text-slate-400 bg-slate-950 p-2 rounded-lg border border-slate-800/60 line-clamp-2">${lead.obs}</p>` : ''}
         
-        <div class="flex items-center justify-between border-t border-slate-100 pt-2 text-xs">
-          <button onclick="openWhatsApp('${lead.whatsapp}', '${lead.nome}', '${lead.tipo}', ${lead.credito})" class="text-emerald-600 hover:text-emerald-700 font-semibold text-[10px] flex items-center gap-1">
-            <i class="fa-brands fa-whatsapp text-xs"></i> Whats
+        <div class="flex items-center justify-between border-t border-slate-800/80 pt-2 text-xs">
+          <button onclick="openWhatsModal('${lead.whatsapp}', '${lead.nome}', '${lead.tipo}', ${lead.credito})" class="text-emerald-400 hover:text-emerald-300 font-bold text-[10px] flex items-center space-x-1">
+            <i class="fa-brands fa-whatsapp text-xs"></i>
+            <span>WhatsApp</span>
           </button>
-          
-          <div class="flex space-x-1.5 text-slate-400">
-            <button onclick="editLead('${lead.id}')" title="Editar" class="hover:text-slate-700 p-0.5"><i class="fa-solid fa-pen-to-square"></i></button>
-            <button onclick="deleteLead('${lead.id}')" title="Excluir" class="hover:text-rose-600 p-0.5"><i class="fa-solid fa-trash"></i></button>
+
+          <div class="flex space-x-2 text-slate-400">
+            <button onclick="editLead('${lead.id}')" class="hover:text-white"><i class="fa-solid fa-pen-to-square"></i></button>
+            <button onclick="deleteLead('${lead.id}')" class="hover:text-rose-400"><i class="fa-solid fa-trash"></i></button>
           </div>
         </div>
       `;
@@ -1049,213 +875,153 @@ ALTER TABLE lances DISABLE ROW LEVEL SECURITY;
       ev.preventDefault();
       const id = ev.dataTransfer.getData("text/plain");
       const lead = leads.find(l => String(l.id) === String(id));
-      
       if (lead) {
         lead.etapa = targetStage;
         renderAll();
-
         if (isConnected && supabaseClient) {
-          try {
-            await supabaseClient.from('leads').update({ etapa: targetStage }).eq('id', id);
-          } catch (err) {
-            console.error("Erro ao atualizar etapa no Supabase:", err);
-          }
+          await supabaseClient.from('leads').update({ etapa: targetStage }).eq('id', id);
         } else {
-          saveLocalStorageData();
+          localStorage.setItem('pedro_crm_leads_data', JSON.stringify(leads));
         }
       }
     }
 
-    // Função para rolar o Kanban horizontalmente pelos botões
-    function scrollKanban(direction) {
+    function scrollKanban(dir) {
       const wrapper = document.getElementById('kanban-wrapper');
-      const amount = 300;
-      if (direction === 'left') {
-        wrapper.scrollBy({ left: -amount, behavior: 'smooth' });
-      } else {
-        wrapper.scrollBy({ left: amount, behavior: 'smooth' });
-      }
+      wrapper.scrollBy({ left: dir === 'left' ? -300 : 300, behavior: 'smooth' });
     }
 
-    function renderCotas() {
-      const grid = document.getElementById('cotas-grid');
-      const statusFilter = document.getElementById('filter-cotas-status').value;
-      grid.innerHTML = '';
-
-      let filtered = cotas;
-      if (statusFilter !== 'todos') {
-        filtered = cotas.filter(c => c.status === statusFilter);
-      }
-
-      if (filtered.length === 0) {
-        grid.innerHTML = `<div class="col-span-full text-center py-8 text-slate-400 text-xs">Nenhuma cota cadastrada.</div>`;
-        return;
-      }
-
-      filtered.forEach(c => {
-        const owner = leads.find(l => String(l.id) === String(c.lead_id));
-        const ownerName = owner ? owner.nome : 'Cliente Não Vinculado';
-
-        const fmtCred = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(c.credito || 0);
-        const fmtParc = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(c.parcela || 0);
-
-        const card = document.createElement('div');
-        card.className = "bg-white p-4 rounded-2xl shadow-sm border border-slate-200 space-y-3";
-        card.innerHTML = `
-          <div class="flex justify-between items-start">
-            <div>
-              <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">${c.administradora}</span>
-              <h3 class="font-bold text-slate-800 text-sm">Grupo: ${c.grupo} | Cota: ${c.cota}</h3>
-            </div>
-            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${c.status === 'contemplada' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}">
-              ${c.status === 'contemplada' ? 'Contemplada' : 'Ativa'}
-            </span>
-          </div>
-
-          <div class="bg-slate-50 p-2.5 rounded-xl text-xs space-y-1">
-            <div class="flex justify-between"><span class="text-slate-500">Titular:</span><span class="font-semibold text-slate-700">${ownerName}</span></div>
-            <div class="flex justify-between"><span class="text-slate-500">Crédito:</span><span class="font-bold text-slate-800">${fmtCred}</span></div>
-            <div class="flex justify-between"><span class="text-slate-500">Parcela:</span><span class="font-semibold text-blue-600">${fmtParc}</span></div>
-          </div>
-
-          <div class="grid grid-cols-2 gap-2 text-[11px] text-slate-600 border-t pt-2">
-            <div><i class="fa-regular fa-calendar-check text-blue-500"></i> Vencimento: <b>Dia ${c.vencimento}</b></div>
-            <div><i class="fa-solid fa-users-rays text-amber-500"></i> Assembleia: <b>Dia ${c.assembleia}</b></div>
-          </div>
-
-          <div class="flex justify-between items-center text-xs pt-1">
-            <span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded">Lance: ${c.lance}</span>
-            <button onclick="deleteCota('${c.id}')" class="text-slate-400 hover:text-rose-600 text-xs"><i class="fa-solid fa-trash"></i></button>
-          </div>
-        `;
-        grid.appendChild(card);
-      });
+    // TEMPLATES WHATSAPP
+    function openWhatsModal(phone, nome, tipo, credito) {
+      currentWhatsLead = { phone: phone.replace(/\D/g, ''), nome, tipo, credito };
+      document.getElementById('modal-whats').classList.remove('hidden');
+    }
+    function closeWhatsModal() {
+      document.getElementById('modal-whats').classList.add('hidden');
     }
 
-    function renderClientes() {
-      const tbody = document.getElementById('clientes-table-body');
-      const search = document.getElementById('search-clientes').value.toLowerCase();
-      tbody.innerHTML = '';
+    function sendWhatsTemplate(type) {
+      if (!currentWhatsLead) return;
+      const fmtCred = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(currentWhatsLead.credito || 0);
+      let text = "";
 
-      const filtered = leads.filter(l => l.nome.toLowerCase().includes(search) || l.whatsapp.includes(search));
-      document.getElementById('total-clientes-registros').innerText = filtered.length;
+      if (type === 'tabela') {
+        text = `Olá ${currentWhatsLead.nome}! Separei as melhores opções de consórcio para o seu crédito de ${fmtCred} no segmento de ${currentWhatsLead.tipo}. Podemos conversar agora sobre as parcelas?`;
+      } else if (type === 'lance') {
+        text = `Olá ${currentWhatsLead.nome}! Sabia que você pode usar até 30% do próprio crédito de ${fmtCred} para dar o lance e antecipar a sua contemplação? Posso te mandar a simulação?`;
+      } else if (type === 'assembleia') {
+        text = `Olá ${currentWhatsLead.nome}! A próxima assembleia para o consórcio de ${currentWhatsLead.tipo} está a chegar. Vamos cadastrar a sua oferta de lance?`;
+      }
 
-      filtered.forEach(l => {
-        const fmtCred = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(l.credito || 0);
-        const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-50 transition border-b border-slate-100';
-
-        tr.innerHTML = `
-          <td class="py-3 px-4 font-semibold text-slate-800">${l.nome}</td>
-          <td class="py-3 px-4 text-slate-600 font-mono text-xs">${l.whatsapp}</td>
-          <td class="py-3 px-4">
-            <span class="font-bold text-slate-700">${l.tipo || 'Consórcio'}</span>
-            <span class="text-slate-400 block text-xs">${fmtCred}</span>
-          </td>
-          <td class="py-3 px-4">
-            <span class="capitalize text-xs font-semibold bg-slate-100 text-slate-700 px-2 py-1 rounded-md border">
-              ${l.etapa.replace('_', ' ')}
-            </span>
-          </td>
-          <td class="py-3 px-4 text-center space-x-2">
-            <button onclick="openWhatsApp('${l.whatsapp}', '${l.nome}', '${l.tipo}', ${l.credito})" class="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg"><i class="fa-brands fa-whatsapp text-base"></i></button>
-            <button onclick="editLead('${l.id}')" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"><i class="fa-solid fa-pen-to-square text-base"></i></button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
+      window.open(`https://wa.me/55${currentWhatsLead.phone}?text=${encodeURIComponent(text)}`, '_blank');
+      closeWhatsModal();
     }
 
+    // SIMULADOR
     function calcularSimulacao() {
       const credito = parseFloat(document.getElementById('sim-credito').value) || 0;
       const prazo = parseFloat(document.getElementById('sim-prazo').value) || 1;
       const taxa = parseFloat(document.getElementById('sim-taxa').value) || 0;
       const lanceLivre = parseFloat(document.getElementById('sim-lance-livre').value) || 0;
       const lanceEmbutidoPct = parseFloat(document.getElementById('sim-lance-embutido-pct').value) || 0;
-      const modoAbatimento = document.getElementById('sim-modo-abatimento').value;
+      const modo = document.getElementById('sim-modo-abatimento').value;
 
       const totalComTaxa = credito * (1 + (taxa / 100));
       const parcelaInicial = totalComTaxa / prazo;
-
-      const valorLanceEmbutido = credito * (lanceEmbutidoPct / 100);
-      const lanceTotal = lanceLivre + valorLanceEmbutido;
+      const valorEmbutido = credito * (lanceEmbutidoPct / 100);
+      const lanceTotal = lanceLivre + valorEmbutido;
       const pctTotal = credito > 0 ? (lanceTotal / credito) * 100 : 0;
-
-      const creditoLiquido = credito - valorLanceEmbutido;
-      let saldoDevedorRestante = totalComTaxa - lanceTotal;
-      if (saldoDevedorRestante < 0) saldoDevedorRestante = 0;
-
-      let posRotulo = "";
-      let posValor = "";
+      const creditoLiquido = credito - valorEmbutido;
+      let saldoRestante = totalComTaxa - lanceTotal;
+      if (saldoRestante < 0) saldoRestante = 0;
 
       const fmt = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
-
-      if (modoAbatimento === 'parcela') {
-        const novaParcela = saldoDevedorRestante / prazo;
-        posRotulo = "Nova Parcela Reduzida:";
-        posValor = fmt(novaParcela);
-      } else {
-        const prazoEstimado = Math.ceil(saldoDevedorRestante / parcelaInicial);
-        posRotulo = "Novo Prazo Estimado:";
-        posValor = `${prazoEstimado} meses (${fmt(parcelaInicial)}/mês)`;
-      }
 
       document.getElementById('res-credito-liquido').innerText = fmt(creditoLiquido);
       document.getElementById('res-parcela-inicial').innerText = fmt(parcelaInicial);
       document.getElementById('res-lance-total').innerText = `${fmt(lanceTotal)} (${pctTotal.toFixed(1)}%)`;
-      document.getElementById('res-lance-livre').innerText = fmt(lanceLivre);
-      document.getElementById('res-lance-embutido').innerText = `${fmt(valorLanceEmbutido)} (${lanceEmbutidoPct}%)`;
 
-      document.getElementById('res-rotulo-pos').innerText = posRotulo;
-      document.getElementById('res-valor-pos').innerText = posValor;
+      if (modo === 'parcela') {
+        document.getElementById('res-valor-pos').innerText = `${fmt(saldoRestante / prazo)} / mês`;
+      } else {
+        const prazoEst = Math.ceil(saldoRestante / parcelaInicial);
+        document.getElementById('res-valor-pos').innerText = `${prazoEst} meses de ${fmt(parcelaInicial)}`;
+      }
     }
 
     function enviarPropostaSimuladaWhats() {
-      const credito = parseFloat(document.getElementById('sim-credito').value) || 0;
+      const credito = document.getElementById('sim-credito').value;
       const prazo = document.getElementById('sim-prazo').value;
-      const parcelaInicial = document.getElementById('res-parcela-inicial').innerText;
+      const parcela = document.getElementById('res-parcela-inicial').innerText;
       const lanceTotal = document.getElementById('res-lance-total').innerText;
-      const creditoLiquido = document.getElementById('res-credito-liquido').innerText;
-      const posValor = document.getElementById('res-valor-pos').innerText;
+      const pos = document.getElementById('res-valor-pos').innerText;
 
-      const fmtCredito = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(credito);
+      const text = `Olá! Montei uma simulação exclusiva de consórcio:%0A%0A` +
+                   `📌 *Crédito:* R$ ${credito}%0A` +
+                   `🗓 *Prazo:* ${prazo} meses%0A` +
+                   `💰 *Parcela:* ${parcela}%0A` +
+                   `🚀 *Lance Ofertado:* ${lanceTotal}%0A` +
+                   `✨ *Pós-Contemplação:* ${pos}%0A%0A` +
+                   `O que achou desta proposta?`;
 
-      const msg = `Olá! Montei uma simulação especial de consórcio:%0A%0A` +
-                  `📌 *Crédito:* ${fmtCredito}%0A` +
-                  `🗓 *Prazo:* ${prazo} meses%0A` +
-                  `💰 *Parcela Inicial:* ${parcelaInicial}%0A%0A` +
-                  `🚀 *Estratégia de Oferta de Lance:*%0A` +
-                  `• *Lance Total:* ${lanceTotal}%0A` +
-                  `• *Crédito Líquido Liberado:* ${creditoLiquido}%0A` +
-                  `• *Pós-Contemplação:* ${posValor}%0A%0A` +
-                  `Vamos analisar juntos essa oportunidade?`;
+      window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+    }
 
-      window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
+    // CLIENTES & MODAIS
+    function renderClientes() {
+      const tbody = document.getElementById('clientes-table-body');
+      const search = document.getElementById('search-clientes').value.toLowerCase();
+      tbody.innerHTML = '';
+      const filtered = leads.filter(l => l.nome.toLowerCase().includes(search) || l.whatsapp.includes(search));
+      document.getElementById('total-clientes-registros').innerText = filtered.length;
+
+      filtered.forEach(l => {
+        const fmtCred = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(l.credito || 0);
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-900/40 transition border-b border-slate-800/40";
+        tr.innerHTML = `
+          <td class="p-3.5 font-bold text-white">${l.nome}</td>
+          <td class="p-3.5 text-slate-400 font-mono">${l.whatsapp}</td>
+          <td class="p-3.5"><span class="font-bold text-indigo-400">${fmtCred}</span> <span class="text-[10px] text-slate-500">(${l.tipo})</span></td>
+          <td class="p-3.5"><span class="bg-slate-800 px-2.5 py-1 rounded-md border border-slate-700 text-slate-300 uppercase text-[10px] font-bold">${l.etapa}</span></td>
+          <td class="p-3.5 text-center space-x-2">
+            <button onclick="openWhatsModal('${l.whatsapp}', '${l.nome}', '${l.tipo}', ${l.credito})" class="text-emerald-400"><i class="fa-brands fa-whatsapp text-base"></i></button>
+            <button onclick="editLead('${l.id}')" class="text-indigo-400"><i class="fa-solid fa-pen-to-square text-base"></i></button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.className = "nav-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition";
+      });
+
+      document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+      const activeBtn = document.getElementById(`nav-btn-${tabName}`);
+      if (activeBtn) {
+        activeBtn.className = "nav-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white transition shadow-md shadow-indigo-600/20";
+      }
     }
 
     async function saveLead(e) {
       e.preventDefault();
       const id = document.getElementById('lead-id').value;
-      const nome = document.getElementById('lead-nome').value;
-      const whatsapp = document.getElementById('lead-whatsapp').value.replace(/\D/g, '');
-      const tipo = document.getElementById('lead-tipo').value;
-      const credito = parseFloat(document.getElementById('lead-credito').value) || 0;
-      const etapa = document.getElementById('lead-etapa').value;
-      const obs = document.getElementById('lead-obs').value;
-
-      const payload = { nome, whatsapp, tipo, credito, etapa, obs };
+      const payload = {
+        nome: document.getElementById('lead-nome').value,
+        whatsapp: document.getElementById('lead-whatsapp').value.replace(/\D/g, ''),
+        tipo: document.getElementById('lead-tipo').value,
+        credito: parseFloat(document.getElementById('lead-credito').value) || 0,
+        etapa: document.getElementById('lead-etapa').value,
+        obs: document.getElementById('lead-obs').value
+      };
 
       if (isConnected && supabaseClient) {
-        try {
-          if (id) {
-            await supabaseClient.from('leads').update(payload).eq('id', id);
-          } else {
-            await supabaseClient.from('leads').insert([payload]);
-          }
-          await syncData();
-        } catch (err) {
-          console.error("Erro ao salvar lead no Supabase:", err);
-        }
+        if (id) await supabaseClient.from('leads').update(payload).eq('id', id);
+        else await supabaseClient.from('leads').insert([payload]);
+        await syncData();
       } else {
         if (id) {
           const idx = leads.findIndex(l => String(l.id) === String(id));
@@ -1263,83 +1029,36 @@ ALTER TABLE lances DISABLE ROW LEVEL SECURITY;
         } else {
           leads.unshift({ id: 'loc_' + Date.now(), ...payload });
         }
-        saveLocalStorageData();
+        localStorage.setItem('pedro_crm_leads_data', JSON.stringify(leads));
         renderAll();
       }
-
       closeLeadModal();
     }
 
     async function deleteLead(id) {
-      if (!confirm('Deseja excluir este lead?')) return;
-
+      if (!confirm('Excluir este lead?')) return;
       if (isConnected && supabaseClient) {
-        try {
-          await supabaseClient.from('leads').delete().eq('id', id);
-          await syncData();
-        } catch (err) {
-          console.error("Erro ao deletar lead:", err);
-        }
+        await supabaseClient.from('leads').delete().eq('id', id);
+        await syncData();
       } else {
         leads = leads.filter(l => String(l.id) !== String(id));
-        saveLocalStorageData();
+        localStorage.setItem('pedro_crm_leads_data', JSON.stringify(leads));
         renderAll();
       }
     }
 
-    async function saveCota(e) {
-      e.preventDefault();
-      const payload = {
-        lead_id: document.getElementById('cota-lead-id').value,
-        administradora: document.getElementById('cota-admin').value,
-        grupo: document.getElementById('cota-grupo').value,
-        cota: document.getElementById('cota-numero').value,
-        credito: parseFloat(document.getElementById('cota-credito').value) || 0,
-        parcela: parseFloat(document.getElementById('cota-parcela').value) || 0,
-        vencimento: parseInt(document.getElementById('cota-vencimento').value) || 10,
-        assembleia: parseInt(document.getElementById('cota-assembleia').value) || 15,
-        lance: document.getElementById('cota-lance').value,
-        status: document.getElementById('cota-status').value
-      };
-
-      if (isConnected && supabaseClient) {
-        try {
-          await supabaseClient.from('cotas').insert([payload]);
-          await syncData();
-        } catch (err) {
-          console.error("Erro ao salvar cota no Supabase:", err);
-        }
-      } else {
-        cotas.unshift({ id: 'c_loc_' + Date.now(), ...payload });
-        saveLocalStorageData();
-        renderAll();
-      }
-
-      closeCotaModal();
-    }
-
-    async function deleteCota(id) {
-      if (!confirm('Excluir esta cota?')) return;
-
-      if (isConnected && supabaseClient) {
-        try {
-          await supabaseClient.from('cotas').delete().eq('id', id);
-          await syncData();
-        } catch (err) {
-          console.error("Erro ao deletar cota:", err);
-        }
-      } else {
-        cotas = cotas.filter(c => String(c.id) !== String(id));
-        saveLocalStorageData();
-        renderAll();
-      }
-    }
-
-    function openConfigModal() {
-      document.getElementById('modal-config').classList.remove('hidden');
-    }
-    function closeConfigModal() {
-      document.getElementById('modal-config').classList.add('hidden');
+    function editLead(id) {
+      const lead = leads.find(l => String(l.id) === String(id));
+      if (!lead) return;
+      document.getElementById('lead-id').value = lead.id;
+      document.getElementById('lead-nome').value = lead.nome;
+      document.getElementById('lead-whatsapp').value = lead.whatsapp;
+      document.getElementById('lead-tipo').value = lead.tipo || 'Imóvel';
+      document.getElementById('lead-credito').value = lead.credito;
+      document.getElementById('lead-etapa').value = lead.etapa;
+      document.getElementById('lead-obs').value = lead.obs || '';
+      document.getElementById('modal-lead-title').innerText = 'Editar Lead';
+      document.getElementById('modal-lead').classList.remove('hidden');
     }
 
     function openLeadModal() {
@@ -1348,122 +1067,25 @@ ALTER TABLE lances DISABLE ROW LEVEL SECURITY;
       document.getElementById('modal-lead-title').innerText = 'Novo Lead';
       document.getElementById('modal-lead').classList.remove('hidden');
     }
-    function closeLeadModal() {
-      document.getElementById('modal-lead').classList.add('hidden');
-    }
+    function closeLeadModal() { document.getElementById('modal-lead').classList.add('hidden'); }
 
-    function editLead(id) {
-      const lead = leads.find(l => String(l.id) === String(id));
-      if (!lead) return;
-
-      document.getElementById('lead-id').value = lead.id;
-      document.getElementById('lead-nome').value = lead.nome;
-      document.getElementById('lead-whatsapp').value = lead.whatsapp;
-      document.getElementById('lead-tipo').value = lead.tipo || 'Imóvel';
-      document.getElementById('lead-credito').value = lead.credito;
-      document.getElementById('lead-etapa').value = lead.etapa;
-      document.getElementById('lead-obs').value = lead.obs || '';
-
-      document.getElementById('modal-lead-title').innerText = 'Editar Lead';
-      document.getElementById('modal-lead').classList.remove('hidden');
-    }
-
-    function openCotaModal() {
-      const select = document.getElementById('cota-lead-id');
-      select.innerHTML = '';
-
-      leads.forEach(l => {
-        const opt = document.createElement('option');
-        opt.value = l.id;
-        opt.innerText = `${l.nome} (${l.tipo || 'Consórcio'})`;
-        select.appendChild(opt);
-      });
-
-      document.getElementById('form-cota').reset();
-      document.getElementById('modal-cota').classList.remove('hidden');
-    }
-    function closeCotaModal() {
-      document.getElementById('modal-cota').classList.add('hidden');
-    }
+    function openConfigModal() { document.getElementById('modal-config').classList.remove('hidden'); }
+    function closeConfigModal() { document.getElementById('modal-config').classList.add('hidden'); }
 
     function salvarConfiguracao() {
       const url = document.getElementById('cfg-url').value.trim();
       const key = document.getElementById('cfg-key').value.trim();
-
-      if (!url || !key) {
-        alert('Por favor preencha a URL e a Anon Key do Supabase.');
-        return;
-      }
-
       localStorage.setItem('pedro_crm_sp_url', url);
       localStorage.setItem('pedro_crm_sp_key', key);
-
       initSupabaseFromStorage();
       closeConfigModal();
-    }
-
-    async function testarConexaoSupabase() {
-      const url = document.getElementById('cfg-url').value.trim();
-      const key = document.getElementById('cfg-key').value.trim();
-      const msg = document.getElementById('cfg-status-msg');
-
-      msg.classList.remove('hidden', 'bg-emerald-100', 'text-emerald-800', 'bg-rose-100', 'text-rose-800');
-      msg.innerText = 'Testando conexão...';
-
-      try {
-        const tempClient = window.supabase.createClient(url, key);
-        const { error } = await tempClient.from('leads').select('id').limit(1);
-
-        if (error) throw error;
-
-        msg.classList.add('bg-emerald-100', 'text-emerald-800');
-        msg.innerText = '✅ Conexão bem-sucedida! Tabelas encontradas.';
-      } catch (err) {
-        msg.classList.add('bg-rose-100', 'text-rose-800');
-        msg.innerText = '❌ Erro de conexão. Verifique a URL, Key e se rodou o Script SQL.';
-      }
     }
 
     function limparCredenciais() {
       localStorage.removeItem('pedro_crm_sp_url');
       localStorage.removeItem('pedro_crm_sp_key');
-      document.getElementById('cfg-url').value = '';
-      document.getElementById('cfg-key').value = '';
       setLocalMode();
       closeConfigModal();
-    }
-
-    function switchTab(tabName) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-      document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('border-blue-600', 'text-blue-600');
-        btn.classList.add('border-transparent', 'text-slate-500');
-      });
-
-      document.getElementById(`tab-${tabName}`).classList.remove('hidden');
-      const activeBtn = document.getElementById(`tab-btn-${tabName}`);
-      if (activeBtn) {
-        activeBtn.classList.remove('border-transparent', 'text-slate-500');
-        activeBtn.classList.add('border-blue-600', 'text-blue-600');
-      }
-    }
-
-    function openWhatsApp(phone, nome, tipo, credito) {
-      const cleanPhone = phone.replace(/\D/g, '');
-      const fmtCredito = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(credito || 0);
-      const text = `Olá ${nome}, tudo bem? Sou o Pedro especialista em consórcios! Vi seu interesse no crédito de ${tipo || 'bem'} no valor de ${fmtCredito}. Podemos conversar sobre as opções de lances para a próxima assembleia?`;
-      window.open(`https://wa.me/55${cleanPhone}?text=${encodeURIComponent(text)}`, '_blank');
-    }
-
-    function copiarSQL() {
-      const code = document.getElementById('sql-script-code').innerText;
-      const tempInput = document.createElement('textarea');
-      tempInput.value = code;
-      document.body.appendChild(tempInput);
-      tempInput.select();
-      document.execCommand('copy');
-      document.body.removeChild(tempInput);
-      alert('Script SQL copiado com sucesso!');
     }
   </script>
 </body>
