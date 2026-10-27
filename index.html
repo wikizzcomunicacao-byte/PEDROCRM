@@ -246,7 +246,7 @@
       </div>
     </section>
 
-    <!-- 2. KANBAN TAB -->
+    <!-- 2. KANBAN TAB (AJUSTADO APENAS O ESPAÇAMENTO E LARGURA DAS COLUNAS) -->
     <section id="tab-kanban" class="tab-content hidden">
       <div class="flex items-center justify-between mb-4">
         <div>
@@ -255,11 +255,12 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7 gap-3 items-start overflow-x-auto pb-4">
+      <!-- Ajustado para flex container com scroll horizontal e colunas com largura mínima adequada -->
+      <div class="flex overflow-x-auto gap-3.5 items-start pb-4 no-scrollbar">
         
-        <!-- Colunas Kanban -->
+        <!-- Colunas Kanban com min-w-[280px] e w-[280px] -->
         <!-- Novo Lead -->
-        <div class="bg-slate-200/60 p-3 rounded-2xl border border-slate-300/60 flex flex-col max-h-[calc(100vh-220px)] min-w-[220px]">
+        <div class="bg-slate-200/60 p-3 rounded-2xl border border-slate-300/60 flex flex-col max-h-[calc(100vh-220px)] min-w-[280px] w-[280px] shrink-0">
           <div class="flex justify-between items-center mb-3 px-1">
             <span class="font-bold text-xs uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
               <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> Novo Lead
@@ -270,7 +271,7 @@
         </div>
 
         <!-- Contato Inicial -->
-        <div class="bg-slate-200/60 p-3 rounded-2xl border border-slate-300/60 flex flex-col max-h-[calc(100vh-220px)] min-w-[220px]">
+        <div class="bg-slate-200/60 p-3 rounded-2xl border border-slate-300/60 flex flex-col max-h-[calc(100vh-220px)] min-w-[280px] w-[280px] shrink-0">
           <div class="flex justify-between items-center mb-3 px-1">
             <span class="font-bold text-xs uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
               <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Contato
@@ -281,7 +282,7 @@
         </div>
 
         <!-- Proposta -->
-        <div class="bg-slate-200/60 p-3 rounded-2xl border border-slate-300/60 flex flex-col max-h-[calc(100vh-220px)] min-w-[220px]">
+        <div class="bg-slate-200/60 p-3 rounded-2xl border border-slate-300/60 flex flex-col max-h-[calc(100vh-220px)] min-w-[280px] w-[280px] shrink-0">
           <div class="flex justify-between items-center mb-3 px-1">
             <span class="font-bold text-xs uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
               <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span> Proposta
@@ -292,7 +293,7 @@
         </div>
 
         <!-- Negociação -->
-        <div class="bg-slate-200/60 p-3 rounded-2xl border border-slate-300/60 flex flex-col max-h-[calc(100vh-220px)] min-w-[220px]">
+        <div class="bg-slate-200/60 p-3 rounded-2xl border border-slate-300/60 flex flex-col max-h-[calc(100vh-220px)] min-w-[280px] w-[280px] shrink-0">
           <div class="flex justify-between items-center mb-3 px-1">
             <span class="font-bold text-xs uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
               <span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span> Negociação
@@ -303,7 +304,7 @@
         </div>
 
         <!-- Aguardando Pagamento -->
-        <div class="bg-slate-200/60 p-3 rounded-2xl border border-slate-300/60 flex flex-col max-h-[calc(100vh-220px)] min-w-[220px]">
+        <div class="bg-slate-200/60 p-3 rounded-2xl border border-slate-300/60 flex flex-col max-h-[calc(100vh-220px)] min-w-[280px] w-[280px] shrink-0">
           <div class="flex justify-between items-center mb-3 px-1">
             <span class="font-bold text-xs uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
               <span class="w-2.5 h-2.5 rounded-full bg-cyan-500"></span> Aguardando
@@ -314,7 +315,7 @@
         </div>
 
         <!-- Ganho -->
-        <div class="bg-emerald-100/60 p-3 rounded-2xl border border-emerald-300/70 flex flex-col max-h-[calc(100vh-220px)] min-w-[220px]">
+        <div class="bg-emerald-100/60 p-3 rounded-2xl border border-emerald-300/70 flex flex-col max-h-[calc(100vh-220px)] min-w-[280px] w-[280px] shrink-0">
           <div class="flex justify-between items-center mb-3 px-1">
             <span class="font-bold text-xs uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
               <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Ganho
@@ -325,7 +326,7 @@
         </div>
 
         <!-- Perdido -->
-        <div class="bg-rose-100/40 p-3 rounded-2xl border border-rose-200/70 flex flex-col max-h-[calc(100vh-220px)] min-w-[220px]">
+        <div class="bg-rose-100/40 p-3 rounded-2xl border border-rose-200/70 flex flex-col max-h-[calc(100vh-220px)] min-w-[280px] w-[280px] shrink-0">
           <div class="flex justify-between items-center mb-3 px-1">
             <span class="font-bold text-xs uppercase tracking-wider text-rose-700 flex items-center gap-1.5">
               <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Perdido
