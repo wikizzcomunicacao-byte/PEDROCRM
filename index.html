@@ -40,7 +40,6 @@
     }
   </script>
   <style>
-    /* Barra de rolagem personalizada e visivel para o Kanban */
     .kanban-scroll::-webkit-scrollbar {
       height: 10px;
     }
@@ -70,402 +69,455 @@
 </head>
 <body class="bg-slate-100 font-sans text-slate-800 antialiased min-h-screen flex flex-col selection:bg-blue-500 selection:text-white">
 
-  <!-- ==================== HEADER / NAVBAR ==================== -->
-  <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-30">
-    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16">
-        
-        <!-- Logo & Status -->
-        <div class="flex items-center space-x-3">
-          <div class="bg-blue-600 p-2 rounded-xl text-white shadow-md shadow-blue-500/30">
-            <i class="fa-solid fa-chart-pie text-xl"></i>
-          </div>
-          <div>
-            <div class="flex items-center space-x-2">
-              <h1 class="text-xl font-bold tracking-tight text-white leading-none">Pedro <span class="text-blue-400">CRM</span></h1>
-              <span id="conn-badge" class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1">
-                <span id="conn-dot" class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
-                <span id="conn-text">Modo Local</span>
-              </span>
-            </div>
-            <p class="text-[11px] text-slate-400 hidden sm:block">Gestão de Consórcios & Sincronização Supabase</p>
-          </div>
+  <!-- ==================== TELA DE LOGIN ==================== -->
+  <div id="login-screen" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-800">
+      <div class="bg-slate-900 text-white p-8 text-center border-b border-slate-800">
+        <div class="inline-flex bg-blue-600 p-3 rounded-2xl text-white shadow-lg shadow-blue-500/30 mb-3">
+          <i class="fa-solid fa-chart-pie text-2xl"></i>
         </div>
-
-        <!-- Metric Badges (Desktop Header) -->
-        <div class="hidden lg:flex items-center space-x-5 bg-slate-800/80 px-4 py-1.5 rounded-xl border border-slate-700/80 text-xs">
-          <div>
-            <span class="text-slate-400 block text-[9px] font-semibold uppercase">Total Crédito</span>
-            <span id="stat-credito" class="font-bold text-emerald-400">R$ 0,00</span>
-          </div>
-          <div class="h-6 w-px bg-slate-700"></div>
-          <div>
-            <span class="text-slate-400 block text-[9px] font-semibold uppercase">Vendas Ganhas</span>
-            <span id="stat-vendas" class="font-bold text-blue-400">0</span>
-          </div>
-          <div class="h-6 w-px bg-slate-700"></div>
-          <div>
-            <span class="text-slate-400 block text-[9px] font-semibold uppercase">Comissão Est. (1.5%)</span>
-            <span id="stat-comissao" class="font-bold text-purple-400">R$ 0,00</span>
-          </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="flex items-center space-x-2">
-          <button onclick="syncData()" title="Sincronizar dados agora" class="bg-slate-800 hover:bg-slate-700 text-slate-200 p-2.5 rounded-xl border border-slate-700 transition">
-            <i id="sync-icon" class="fa-solid fa-rotate text-sm"></i>
-          </button>
-
-          <button onclick="openConfigModal()" title="Configuração Supabase" class="bg-slate-800 hover:bg-slate-700 text-slate-200 p-2.5 rounded-xl border border-slate-700 transition flex items-center space-x-1 text-xs">
-            <i class="fa-solid fa-database text-blue-400"></i>
-            <span class="hidden sm:inline">Conexão DB</span>
-          </button>
-
-          <button onclick="openLeadModal()" class="bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-medium text-xs px-3.5 py-2.5 rounded-xl transition shadow-md flex items-center space-x-1.5">
-            <i class="fa-solid fa-plus"></i>
-            <span class="hidden sm:inline">Novo Lead</span>
-          </button>
-        </div>
-
-      </div>
-    </div>
-  </header>
-
-  <!-- ==================== TAB NAVIGATION ==================== -->
-  <nav class="bg-white border-b border-slate-200 shadow-sm sticky top-16 z-20">
-    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex space-x-1 sm:space-x-6 overflow-x-auto py-2">
-        <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="tab-btn flex items-center space-x-2 py-2 px-3 border-b-2 font-semibold text-xs sm:text-sm border-blue-600 text-blue-600 whitespace-nowrap">
-          <i class="fa-solid fa-chart-line"></i>
-          <span>Dashboard</span>
-        </button>
-        <button onclick="switchTab('kanban')" id="tab-btn-kanban" class="tab-btn flex items-center space-x-2 py-2 px-3 border-b-2 font-semibold text-xs sm:text-sm border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap">
-          <i class="fa-solid fa-columns"></i>
-          <span>Funil Kanban</span>
-        </button>
-        <button onclick="switchTab('cotas')" id="tab-btn-cotas" class="tab-btn flex items-center space-x-2 py-2 px-3 border-b-2 font-semibold text-xs sm:text-sm border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap">
-          <i class="fa-solid fa-file-contract"></i>
-          <span>Cotas & Assembleias</span>
-        </button>
-        <button onclick="switchTab('simulador')" id="tab-btn-simulador" class="tab-btn flex items-center space-x-2 py-2 px-3 border-b-2 font-semibold text-xs sm:text-sm border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap">
-          <i class="fa-solid fa-calculator"></i>
-          <span>Simulador</span>
-        </button>
-        <button onclick="switchTab('clientes')" id="tab-btn-clientes" class="tab-btn flex items-center space-x-2 py-2 px-3 border-b-2 font-semibold text-xs sm:text-sm border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap">
-          <i class="fa-solid fa-users"></i>
-          <span>Clientes</span>
-        </button>
-        <button onclick="switchTab('config')" id="tab-btn-config" class="tab-btn flex items-center space-x-2 py-2 px-3 border-b-2 font-semibold text-xs sm:text-sm border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap">
-          <i class="fa-solid fa-code"></i>
-          <span>Script SQL / Config</span>
-        </button>
-      </div>
-    </div>
-  </nav>
-
-  <!-- ==================== MAIN CONTENT AREA ==================== -->
-  <main class="flex-1 max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-
-    <!-- 1. DASHBOARD TAB -->
-    <section id="tab-dashboard" class="tab-content space-y-6">
-      
-      <!-- Banner Aviso Local -->
-      <div id="local-warning-banner" class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start sm:items-center justify-between gap-3 shadow-sm">
-        <div class="flex items-center space-x-3">
-          <div class="p-2.5 bg-amber-100 text-amber-700 rounded-xl">
-            <i class="fa-solid fa-database text-lg"></i>
-          </div>
-          <div>
-            <h4 class="text-xs font-bold text-amber-900">Modo Local Ativo (Sem Supabase)</h4>
-            <p class="text-[11px] text-amber-700">Seus dados estão sendo salvos no navegador. Configure sua URL e Anon Key do Supabase para sincronização na nuvem.</p>
-          </div>
-        </div>
-        <button onclick="openConfigModal()" class="whitespace-nowrap px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold transition shadow-sm">
-          Conectar Supabase
-        </button>
+        <h2 class="text-2xl font-bold tracking-tight">Pedro <span class="text-blue-400">CRM</span></h2>
+        <p class="text-xs text-slate-400 mt-1">Gestão de Consórcios • Acesso Restrito</p>
       </div>
 
-      <!-- Stat Cards Grid -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <div class="flex items-center justify-between text-slate-400 mb-2">
-            <span class="text-xs font-bold uppercase tracking-wider">Total Leads</span>
-            <i class="fa-solid fa-users text-blue-500"></i>
-          </div>
-          <p id="dash-total-leads" class="text-2xl font-bold text-slate-800">0</p>
-          <span class="text-[10px] text-slate-400">Cadastrados no sistema</span>
-        </div>
+      <form id="form-login" onsubmit="handleLogin(event)" class="p-8 space-y-4">
+        <div id="login-error-msg" class="hidden bg-rose-50 border border-rose-200 text-rose-700 p-3 rounded-xl text-xs font-medium"></div>
 
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <div class="flex items-center justify-between text-slate-400 mb-2">
-            <span class="text-xs font-bold uppercase tracking-wider">Em Negociação</span>
-            <i class="fa-solid fa-comments-dollar text-amber-500"></i>
-          </div>
-          <p id="dash-credito-negociacao" class="text-2xl font-bold text-slate-800">R$ 0,00</p>
-          <span class="text-[10px] text-slate-400">Pipeline ativo</span>
-        </div>
-
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <div class="flex items-center justify-between text-slate-400 mb-2">
-            <span class="text-xs font-bold uppercase tracking-wider">Vendas Fechadas</span>
-            <i class="fa-solid fa-circle-check text-emerald-500"></i>
-          </div>
-          <p id="dash-credito-ganho" class="text-2xl font-bold text-emerald-600">R$ 0,00</p>
-          <span class="text-[10px] text-slate-400">Crédito total vendido</span>
-        </div>
-
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <div class="flex items-center justify-between text-slate-400 mb-2">
-            <span class="text-xs font-bold uppercase tracking-wider">Comissão Est.</span>
-            <i class="fa-solid fa-hand-holding-dollar text-purple-500"></i>
-          </div>
-          <p id="dash-comissao" class="text-2xl font-bold text-purple-600">R$ 0,00</p>
-          <span class="text-[10px] text-slate-400">Projeção de 1.5%</span>
-        </div>
-
-      </div>
-
-      <!-- Quick Summary Charts/Lists -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-        <!-- Próximas Assembleias -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-          <div class="flex justify-between items-center">
-            <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
-              <i class="fa-solid fa-calendar-days text-blue-500"></i> Próximas Assembleias de Cotas
-            </h3>
-            <button onclick="switchTab('cotas')" class="text-xs text-blue-600 font-semibold hover:underline">Ver todas</button>
-          </div>
-          <div id="dash-assembleias-list" class="space-y-2 max-h-56 overflow-y-auto">
-            <!-- Inserido dinamicamente -->
-          </div>
-        </div>
-
-        <!-- Resumo de Leads por Etapa -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-          <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
-            <i class="fa-solid fa-filter text-indigo-500"></i> Distribuição do Funil
-          </h3>
-          <div id="dash-funil-breakdown" class="space-y-2 text-xs">
-            <!-- Inserido dinamicamente -->
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- 2. KANBAN TAB -->
-    <section id="tab-kanban" class="tab-content hidden space-y-3">
-      <div class="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h2 class="text-lg font-bold text-slate-800">Funil de Vendas de Consórcio</h2>
-          <p class="text-xs text-slate-500">Arraste os cards para atualizar a etapa do lead em tempo real.</p>
-        </div>
-
-        <div class="flex items-center space-x-2">
-          <!-- Botão Editor de Funis -->
-          <button onclick="openStagesModal()" class="bg-slate-800 hover:bg-slate-700 text-white font-medium text-xs px-3 py-2 rounded-xl transition shadow-sm flex items-center space-x-1.5">
-            <i class="fa-solid fa-pen-to-square text-blue-400"></i>
-            <span>Gerenciar Etapas</span>
-          </button>
-
-          <!-- Botões de Navegação Rápida do Kanban -->
-          <div class="flex items-center space-x-1 bg-white px-2.5 py-1.5 rounded-xl border border-slate-200 shadow-sm">
-            <span class="text-xs font-semibold text-slate-500 mr-1 hidden sm:inline">Rolar:</span>
-            <button onclick="scrollKanban('left')" class="p-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs transition">
-              <i class="fa-solid fa-chevron-left"></i>
-            </button>
-            <button onclick="scrollKanban('right')" class="p-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs transition">
-              <i class="fa-solid fa-chevron-right"></i>
-            </button>
+          <label class="block text-xs font-bold text-slate-700 mb-1">E-mail do Usuário</label>
+          <div class="relative">
+            <i class="fa-solid fa-envelope absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+            <input type="email" id="login-email" required placeholder="seuemail@exemplo.com" class="w-full pl-9 pr-4 py-2.5 border border-slate-300 rounded-xl text-xs focus:ring-blue-500 focus:border-blue-500 outline-none transition" />
           </div>
         </div>
-      </div>
 
-      <!-- Container do Kanban (Gerado Dinamicamente) -->
-      <div id="kanban-wrapper" class="flex overflow-x-auto gap-4 items-start pb-6 pt-1 kanban-scroll">
-        <!-- Colunas geradas via JS em renderKanban() -->
-      </div>
-    </section>
-
-    <!-- 3. COTAS & ASSEMBLEIAS TAB -->
-    <section id="tab-cotas" class="tab-content hidden space-y-6">
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
         <div>
-          <h2 class="text-lg font-bold text-slate-800">Gestão de Cotas & Calendário de Assembleias</h2>
-          <p class="text-xs text-slate-500">Acompanhamento das cotas ativas, contemplações e ofertas de lance.</p>
-        </div>
-        <div class="flex items-center space-x-3 w-full sm:w-auto">
-          <select id="filter-cotas-status" onchange="renderCotas()" class="bg-slate-50 border border-slate-300 text-xs rounded-xl p-2.5 text-slate-700 focus:ring-blue-500 focus:border-blue-500">
-            <option value="todos">Todas as Cotas</option>
-            <option value="ativa">Somente Ativas</option>
-            <option value="contemplada">Somente Contempladas</option>
-          </select>
-          <button onclick="openCotaModal()" class="bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs px-4 py-2.5 rounded-xl transition shadow flex items-center space-x-1.5 whitespace-nowrap">
-            <i class="fa-solid fa-plus"></i>
-            <span>Nova Cota</span>
-          </button>
-        </div>
-      </div>
-
-      <div id="cotas-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <!-- Inserido dinamicamente -->
-      </div>
-    </section>
-
-    <!-- 4. SIMULADOR TAB -->
-    <section id="tab-simulador" class="tab-content hidden max-w-4xl mx-auto">
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="bg-slate-900 text-white p-6">
-          <h2 class="text-xl font-bold flex items-center gap-2">
-            <i class="fa-solid fa-calculator text-blue-400"></i> Calculadora & Simulador de Lance
-          </h2>
-          <p class="text-xs text-slate-400 mt-1">Calcule lances embutidos, livres e abatimentos de prazo ou parcela para enviar propostas no WhatsApp.</p>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Senha de Acesso</label>
+          <div class="relative">
+            <i class="fa-solid fa-lock absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+            <input type="password" id="login-password" required placeholder="••••••••" class="w-full pl-9 pr-4 py-2.5 border border-slate-300 rounded-xl text-xs focus:ring-blue-500 focus:border-blue-500 outline-none transition" />
+          </div>
         </div>
 
-        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <button type="submit" id="btn-submit-login" class="w-full bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-bold text-xs py-3 rounded-xl transition shadow-lg shadow-blue-600/30 flex items-center justify-center space-x-2 mt-2">
+          <i class="fa-solid fa-right-to-bracket"></i>
+          <span>Entrar no Sistema</span>
+        </button>
+
+        <div class="pt-4 border-t border-slate-100 flex justify-between items-center text-[11px] text-slate-400">
+          <span>Autenticação via Supabase</span>
+          <button type="button" onclick="openConfigModal()" class="text-blue-600 font-semibold hover:underline">Configurar Banco</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== APLICAÇÃO PRINCIPAL (SISTEMA DEPOIS DO LOGIN) ==================== -->
+  <div id="app-content" class="hidden flex-1 flex flex-col min-h-screen">
+
+    <!-- ==================== HEADER / NAVBAR ==================== -->
+    <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-30">
+      <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
           
-          <!-- Formulário -->
-          <div class="space-y-4">
-            <h3 class="font-bold text-slate-800 text-sm border-b pb-2">Parâmetros do Consórcio</h3>
-            
+          <!-- Logo & Status -->
+          <div class="flex items-center space-x-3">
+            <div class="bg-blue-600 p-2 rounded-xl text-white shadow-md shadow-blue-500/30">
+              <i class="fa-solid fa-chart-pie text-xl"></i>
+            </div>
             <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Valor do Crédito (R$)</label>
-              <input type="number" id="sim-credito" value="200000" oninput="calcularSimulacao()" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-blue-500 focus:border-blue-500" />
-            </div>
-
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">Prazo (Meses)</label>
-                <input type="number" id="sim-prazo" value="180" oninput="calcularSimulacao()" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-blue-500 focus:border-blue-500" />
+              <div class="flex items-center space-x-2">
+                <h1 class="text-xl font-bold tracking-tight text-white leading-none">Pedro <span class="text-blue-400">CRM</span></h1>
+                <span id="conn-badge" class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                  <span id="conn-dot" class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                  <span id="conn-text">Modo Local</span>
+                </span>
               </div>
-              <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">Taxa Adm. (%)</label>
-                <input type="number" id="sim-taxa" value="18" step="0.5" oninput="calcularSimulacao()" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-blue-500 focus:border-blue-500" />
-              </div>
-            </div>
-
-            <hr class="my-2" />
-            <h3 class="font-bold text-slate-800 text-sm border-b pb-2">Estratégia de Lance</h3>
-
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">Lance Livre (R$)</label>
-                <input type="number" id="sim-lance-livre" value="40000" oninput="calcularSimulacao()" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-blue-500 focus:border-blue-500" />
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">Lance Embutido (%)</label>
-                <input type="number" id="sim-lance-embutido-pct" value="10" min="0" max="30" oninput="calcularSimulacao()" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-blue-500 focus:border-blue-500" />
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Opção de Abatimento</label>
-              <select id="sim-modo-abatimento" onchange="calcularSimulacao()" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-blue-500 focus:border-blue-500">
-                <option value="parcela">Reduzir Valor da Parcela</option>
-                <option value="prazo">Reduzir Prazo (Quantidade de Parcelas)</option>
-              </select>
+              <p class="text-[11px] text-slate-400 hidden sm:block">Gestão de Consórcios & Sincronização Supabase</p>
             </div>
           </div>
 
-          <!-- Resultado -->
-          <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 flex flex-col justify-between space-y-4">
+          <!-- Metric Badges (Desktop Header) -->
+          <div class="hidden lg:flex items-center space-x-5 bg-slate-800/80 px-4 py-1.5 rounded-xl border border-slate-700/80 text-xs">
             <div>
-              <h3 class="font-bold text-slate-800 text-sm border-b pb-2 mb-4">Resumo da Proposta</h3>
-              
-              <div class="space-y-3 text-sm">
-                <div class="flex justify-between py-1 border-b border-slate-200">
-                  <span class="text-slate-600">Crédito Líquido na Mão:</span>
-                  <span id="res-credito-liquido" class="font-bold text-emerald-600">R$ 0,00</span>
-                </div>
-                <div class="flex justify-between py-1 border-b border-slate-200">
-                  <span class="text-slate-600">Parcela Inicial:</span>
-                  <span id="res-parcela-inicial" class="font-semibold text-slate-800">R$ 0,00</span>
-                </div>
-                <div class="flex justify-between py-1 border-b border-slate-200">
-                  <span class="text-slate-600">Total do Lance Ofertado:</span>
-                  <span id="res-lance-total" class="font-bold text-blue-600">R$ 0,00 (0%)</span>
-                </div>
-                <div class="flex justify-between py-1 border-b border-slate-200">
-                  <span class="text-slate-600">-> Em Dinheiro (Livre):</span>
-                  <span id="res-lance-livre" class="font-medium">R$ 0,00</span>
-                </div>
-                <div class="flex justify-between py-1 border-b border-slate-200">
-                  <span class="text-slate-600">-> Do Próprio Crédito (Embutido):</span>
-                  <span id="res-lance-embutido" class="font-medium">R$ 0,00</span>
-                </div>
+              <span class="text-slate-400 block text-[9px] font-semibold uppercase">Total Crédito</span>
+              <span id="stat-credito" class="font-bold text-emerald-400">R$ 0,00</span>
+            </div>
+            <div class="h-6 w-px bg-slate-700"></div>
+            <div>
+              <span class="text-slate-400 block text-[9px] font-semibold uppercase">Vendas Ganhas</span>
+              <span id="stat-vendas" class="font-bold text-blue-400">0</span>
+            </div>
+            <div class="h-6 w-px bg-slate-700"></div>
+            <div>
+              <span class="text-slate-400 block text-[9px] font-semibold uppercase">Comissão Est. (1.5%)</span>
+              <span id="stat-comissao" class="font-bold text-purple-400">R$ 0,00</span>
+            </div>
+          </div>
 
-                <div class="bg-blue-50 p-3 rounded-xl border border-blue-200 mt-4">
-                  <span class="text-xs text-blue-800 font-semibold block mb-1">Pós-Contemplação:</span>
-                  <div class="flex justify-between text-sm font-bold text-blue-900">
-                    <span id="res-rotulo-pos">Nova Parcela:</span>
-                    <span id="res-valor-pos">R$ 0,00</span>
+          <!-- Action Buttons & User Info -->
+          <div class="flex items-center space-x-2">
+            <button onclick="syncData()" title="Sincronizar dados agora" class="bg-slate-800 hover:bg-slate-700 text-slate-200 p-2.5 rounded-xl border border-slate-700 transition">
+              <i id="sync-icon" class="fa-solid fa-rotate text-sm"></i>
+            </button>
+
+            <button onclick="openConfigModal()" title="Configuração Supabase" class="bg-slate-800 hover:bg-slate-700 text-slate-200 p-2.5 rounded-xl border border-slate-700 transition flex items-center space-x-1 text-xs">
+              <i class="fa-solid fa-database text-blue-400"></i>
+              <span class="hidden sm:inline">Conexão DB</span>
+            </button>
+
+            <button onclick="openLeadModal()" class="bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-medium text-xs px-3.5 py-2.5 rounded-xl transition shadow-md flex items-center space-x-1.5">
+              <i class="fa-solid fa-plus"></i>
+              <span class="hidden sm:inline">Novo Lead</span>
+            </button>
+
+            <div class="h-6 w-px bg-slate-800 mx-1"></div>
+
+            <button onclick="handleLogout()" title="Sair do Sistema" class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 p-2.5 rounded-xl border border-rose-500/20 transition flex items-center gap-1.5 text-xs font-bold">
+              <i class="fa-solid fa-right-from-bracket"></i>
+              <span class="hidden sm:inline">Sair</span>
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </header>
+
+    <!-- ==================== TAB NAVIGATION ==================== -->
+    <nav class="bg-white border-b border-slate-200 shadow-sm sticky top-16 z-20">
+      <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex space-x-1 sm:space-x-6 overflow-x-auto py-2">
+          <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="tab-btn flex items-center space-x-2 py-2 px-3 border-b-2 font-semibold text-xs sm:text-sm border-blue-600 text-blue-600 whitespace-nowrap">
+            <i class="fa-solid fa-chart-line"></i>
+            <span>Dashboard</span>
+          </button>
+          <button onclick="switchTab('kanban')" id="tab-btn-kanban" class="tab-btn flex items-center space-x-2 py-2 px-3 border-b-2 font-semibold text-xs sm:text-sm border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap">
+            <i class="fa-solid fa-columns"></i>
+            <span>Funil Kanban</span>
+          </button>
+          <button onclick="switchTab('cotas')" id="tab-btn-cotas" class="tab-btn flex items-center space-x-2 py-2 px-3 border-b-2 font-semibold text-xs sm:text-sm border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap">
+            <i class="fa-solid fa-file-contract"></i>
+            <span>Cotas & Assembleias</span>
+          </button>
+          <button onclick="switchTab('simulador')" id="tab-btn-simulador" class="tab-btn flex items-center space-x-2 py-2 px-3 border-b-2 font-semibold text-xs sm:text-sm border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap">
+            <i class="fa-solid fa-calculator"></i>
+            <span>Simulador</span>
+          </button>
+          <button onclick="switchTab('clientes')" id="tab-btn-clientes" class="tab-btn flex items-center space-x-2 py-2 px-3 border-b-2 font-semibold text-xs sm:text-sm border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap">
+            <i class="fa-solid fa-users"></i>
+            <span>Clientes</span>
+          </button>
+          <button onclick="switchTab('config')" id="tab-btn-config" class="tab-btn flex items-center space-x-2 py-2 px-3 border-b-2 font-semibold text-xs sm:text-sm border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap">
+            <i class="fa-solid fa-code"></i>
+            <span>Script SQL / Config</span>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ==================== MAIN CONTENT AREA ==================== -->
+    <main class="flex-1 max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+      <!-- 1. DASHBOARD TAB -->
+      <section id="tab-dashboard" class="tab-content space-y-6">
+        
+        <!-- Banner Aviso Local -->
+        <div id="local-warning-banner" class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start sm:items-center justify-between gap-3 shadow-sm">
+          <div class="flex items-center space-x-3">
+            <div class="p-2.5 bg-amber-100 text-amber-700 rounded-xl">
+              <i class="fa-solid fa-database text-lg"></i>
+            </div>
+            <div>
+              <h4 class="text-xs font-bold text-amber-900">Modo Local Ativo (Sem Supabase)</h4>
+              <p class="text-[11px] text-amber-700">Seus dados estão sendo salvos no navegador. Configure sua URL e Anon Key do Supabase para sincronização na nuvem.</p>
+            </div>
+          </div>
+          <button onclick="openConfigModal()" class="whitespace-nowrap px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold transition shadow-sm">
+            Conectar Supabase
+          </button>
+        </div>
+
+        <!-- Stat Cards Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between text-slate-400 mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider">Total Leads</span>
+              <i class="fa-solid fa-users text-blue-500"></i>
+            </div>
+            <p id="dash-total-leads" class="text-2xl font-bold text-slate-800">0</p>
+            <span class="text-[10px] text-slate-400">Cadastrados no sistema</span>
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between text-slate-400 mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider">Em Negociação</span>
+              <i class="fa-solid fa-comments-dollar text-amber-500"></i>
+            </div>
+            <p id="dash-credito-negociacao" class="text-2xl font-bold text-slate-800">R$ 0,00</p>
+            <span class="text-[10px] text-slate-400">Pipeline ativo</span>
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between text-slate-400 mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider">Vendas Fechadas</span>
+              <i class="fa-solid fa-circle-check text-emerald-500"></i>
+            </div>
+            <p id="dash-credito-ganho" class="text-2xl font-bold text-emerald-600">R$ 0,00</p>
+            <span class="text-[10px] text-slate-400">Crédito total vendido</span>
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between text-slate-400 mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider">Comissão Est.</span>
+              <i class="fa-solid fa-hand-holding-dollar text-purple-500"></i>
+            </div>
+            <p id="dash-comissao" class="text-2xl font-bold text-purple-600">R$ 0,00</p>
+            <span class="text-[10px] text-slate-400">Projeção de 1.5%</span>
+          </div>
+
+        </div>
+
+        <!-- Quick Summary Charts/Lists -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          <!-- Próximas Assembleias -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+            <div class="flex justify-between items-center">
+              <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
+                <i class="fa-solid fa-calendar-days text-blue-500"></i> Próximas Assembleias de Cotas
+              </h3>
+              <button onclick="switchTab('cotas')" class="text-xs text-blue-600 font-semibold hover:underline">Ver todas</button>
+            </div>
+            <div id="dash-assembleias-list" class="space-y-2 max-h-56 overflow-y-auto">
+              <!-- Inserido dinamicamente -->
+            </div>
+          </div>
+
+          <!-- Resumo de Leads por Etapa -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+            <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-filter text-indigo-500"></i> Distribuição do Funil
+            </h3>
+            <div id="dash-funil-breakdown" class="space-y-2 text-xs">
+              <!-- Inserido dinamicamente -->
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- 2. KANBAN TAB -->
+      <section id="tab-kanban" class="tab-content hidden space-y-3">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <div>
+            <h2 class="text-lg font-bold text-slate-800">Funil de Vendas de Consórcio</h2>
+            <p class="text-xs text-slate-500">Arraste os cards para atualizar a etapa do lead em tempo real.</p>
+          </div>
+
+          <div class="flex items-center space-x-2">
+            <!-- Botão Editor de Funis -->
+            <button onclick="openStagesModal()" class="bg-slate-800 hover:bg-slate-700 text-white font-medium text-xs px-3 py-2 rounded-xl transition shadow-sm flex items-center space-x-1.5">
+              <i class="fa-solid fa-pen-to-square text-blue-400"></i>
+              <span>Gerenciar Etapas</span>
+            </button>
+
+            <!-- Botões de Navegação Rápida do Kanban -->
+            <div class="flex items-center space-x-1 bg-white px-2.5 py-1.5 rounded-xl border border-slate-200 shadow-sm">
+              <span class="text-xs font-semibold text-slate-500 mr-1 hidden sm:inline">Rolar:</span>
+              <button onclick="scrollKanban('left')" class="p-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs transition">
+                <i class="fa-solid fa-chevron-left"></i>
+              </button>
+              <button onclick="scrollKanban('right')" class="p-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs transition">
+                <i class="fa-solid fa-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Container do Kanban (Gerado Dinamicamente) -->
+        <div id="kanban-wrapper" class="flex overflow-x-auto gap-4 items-start pb-6 pt-1 kanban-scroll">
+          <!-- Colunas geradas via JS -->
+        </div>
+      </section>
+
+      <!-- 3. COTAS & ASSEMBLEIAS TAB -->
+      <section id="tab-cotas" class="tab-content hidden space-y-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+          <div>
+            <h2 class="text-lg font-bold text-slate-800">Gestão de Cotas & Calendário de Assembleias</h2>
+            <p class="text-xs text-slate-500">Acompanhamento das cotas ativas, contemplações e ofertas de lance.</p>
+          </div>
+          <div class="flex items-center space-x-3 w-full sm:w-auto">
+            <select id="filter-cotas-status" onchange="renderCotas()" class="bg-slate-50 border border-slate-300 text-xs rounded-xl p-2.5 text-slate-700 focus:ring-blue-500 focus:border-blue-500">
+              <option value="todos">Todas as Cotas</option>
+              <option value="ativa">Somente Ativas</option>
+              <option value="contemplada">Somente Contempladas</option>
+            </select>
+            <button onclick="openCotaModal()" class="bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs px-4 py-2.5 rounded-xl transition shadow flex items-center space-x-1.5 whitespace-nowrap">
+              <i class="fa-solid fa-plus"></i>
+              <span>Nova Cota</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="cotas-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Inserido dinamicamente -->
+        </div>
+      </section>
+
+      <!-- 4. SIMULADOR TAB -->
+      <section id="tab-simulador" class="tab-content hidden max-w-4xl mx-auto">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+          <div class="bg-slate-900 text-white p-6">
+            <h2 class="text-xl font-bold flex items-center gap-2">
+              <i class="fa-solid fa-calculator text-blue-400"></i> Calculadora & Simulador de Lance
+            </h2>
+            <p class="text-xs text-slate-400 mt-1">Calcule lances embutidos, livres e abatimentos de prazo ou parcela para enviar propostas no WhatsApp.</p>
+          </div>
+
+          <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Formulário -->
+            <div class="space-y-4">
+              <h3 class="font-bold text-slate-800 text-sm border-b pb-2">Parâmetros do Consórcio</h3>
+              
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Valor do Crédito (R$)</label>
+                <input type="number" id="sim-credito" value="200000" oninput="calcularSimulacao()" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-blue-500 focus:border-blue-500" />
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 mb-1">Prazo (Meses)</label>
+                  <input type="number" id="sim-prazo" value="180" oninput="calcularSimulacao()" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-blue-500 focus:border-blue-500" />
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 mb-1">Taxa Adm. (%)</label>
+                  <input type="number" id="sim-taxa" value="18" step="0.5" oninput="calcularSimulacao()" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-blue-500 focus:border-blue-500" />
+                </div>
+              </div>
+
+              <hr class="my-2" />
+              <h3 class="font-bold text-slate-800 text-sm border-b pb-2">Estratégia de Lance</h3>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 mb-1">Lance Livre (R$)</label>
+                  <input type="number" id="sim-lance-livre" value="40000" oninput="calcularSimulacao()" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-blue-500 focus:border-blue-500" />
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 mb-1">Lance Embutido (%)</label>
+                  <input type="number" id="sim-lance-embutido-pct" value="10" min="0" max="30" oninput="calcularSimulacao()" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-blue-500 focus:border-blue-500" />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Opção de Abatimento</label>
+                <select id="sim-modo-abatimento" onchange="calcularSimulacao()" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-blue-500 focus:border-blue-500">
+                  <option value="parcela">Reduzir Valor da Parcela</option>
+                  <option value="prazo">Reduzir Prazo (Quantidade de Parcelas)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Resultado -->
+            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 flex flex-col justify-between space-y-4">
+              <div>
+                <h3 class="font-bold text-slate-800 text-sm border-b pb-2 mb-4">Resumo da Proposta</h3>
+                
+                <div class="space-y-3 text-sm">
+                  <div class="flex justify-between py-1 border-b border-slate-200">
+                    <span class="text-slate-600">Crédito Líquido na Mão:</span>
+                    <span id="res-credito-liquido" class="font-bold text-emerald-600">R$ 0,00</span>
+                  </div>
+                  <div class="flex justify-between py-1 border-b border-slate-200">
+                    <span class="text-slate-600">Parcela Inicial:</span>
+                    <span id="res-parcela-inicial" class="font-semibold text-slate-800">R$ 0,00</span>
+                  </div>
+                  <div class="flex justify-between py-1 border-b border-slate-200">
+                    <span class="text-slate-600">Total do Lance Ofertado:</span>
+                    <span id="res-lance-total" class="font-bold text-blue-600">R$ 0,00 (0%)</span>
+                  </div>
+                  <div class="flex justify-between py-1 border-b border-slate-200">
+                    <span class="text-slate-600">-> Em Dinheiro (Livre):</span>
+                    <span id="res-lance-livre" class="font-medium">R$ 0,00</span>
+                  </div>
+                  <div class="flex justify-between py-1 border-b border-slate-200">
+                    <span class="text-slate-600">-> Do Próprio Crédito (Embutido):</span>
+                    <span id="res-lance-embutido" class="font-medium">R$ 0,00</span>
+                  </div>
+
+                  <div class="bg-blue-50 p-3 rounded-xl border border-blue-200 mt-4">
+                    <span class="text-xs text-blue-800 font-semibold block mb-1">Pós-Contemplação:</span>
+                    <div class="flex justify-between text-sm font-bold text-blue-900">
+                      <span id="res-rotulo-pos">Nova Parcela:</span>
+                      <span id="res-valor-pos">R$ 0,00</span>
+                    </div>
                   </div>
                 </div>
               </div>
+
+              <button onclick="enviarPropostaSimuladaWhats()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl transition shadow flex items-center justify-center space-x-2">
+                <i class="fa-brands fa-whatsapp text-lg"></i>
+                <span>Enviar Proposta no WhatsApp</span>
+              </button>
             </div>
 
-            <button onclick="enviarPropostaSimuladaWhats()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl transition shadow flex items-center justify-center space-x-2">
-              <i class="fa-brands fa-whatsapp text-lg"></i>
-              <span>Enviar Proposta no WhatsApp</span>
-            </button>
           </div>
-
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- 5. CLIENTES TAB -->
-    <section id="tab-clientes" class="tab-content hidden space-y-4">
-      <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
-        <div class="w-full md:w-1/3">
+      <!-- 5. CLIENTES TAB -->
+      <section id="tab-clientes" class="tab-content hidden space-y-4">
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
+          <div class="w-full md:w-1/3">
+            <div class="relative">
+              <i class="fa-solid fa-search absolute left-3 top-3 text-slate-400 text-xs"></i>
+              <input type="text" id="search-clientes" oninput="renderClientes()" placeholder="Buscar cliente por nome ou WhatsApp..." class="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-xl text-xs focus:ring-blue-500 focus:border-blue-500" />
+            </div>
+          </div>
+          <div class="text-xs text-slate-500">
+            Total de registros: <span id="total-clientes-registros" class="font-bold text-slate-800">0</span>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider font-semibold border-b border-slate-200">
+                  <th class="py-3 px-4">Nome do Cliente</th>
+                  <th class="py-3 px-4">WhatsApp</th>
+                  <th class="py-3 px-4">Interesse</th>
+                  <th class="py-3 px-4">Etapa Funil</th>
+                  <th class="py-3 px-4 text-center">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="clientes-table-body" class="divide-y divide-slate-100 text-sm">
+                <!-- Renderizado via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. CONFIG & SQL TAB -->
+      <section id="tab-config" class="tab-content hidden space-y-6">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+          <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+            <i class="fa-solid fa-database text-blue-600"></i> Script SQL para Criação das Tabelas no Supabase
+          </h2>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Para que a sincronização e autenticação funcionem perfeitamente, rode este código no <b>SQL Editor</b> do seu Supabase:
+          </p>
+
           <div class="relative">
-            <i class="fa-solid fa-search absolute left-3 top-3 text-slate-400 text-xs"></i>
-            <input type="text" id="search-clientes" oninput="renderClientes()" placeholder="Buscar cliente por nome ou WhatsApp..." class="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-xl text-xs focus:ring-blue-500 focus:border-blue-500" />
-          </div>
-        </div>
-        <div class="text-xs text-slate-500">
-          Total de registros: <span id="total-clientes-registros" class="font-bold text-slate-800">0</span>
-        </div>
-      </div>
-
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider font-semibold border-b border-slate-200">
-                <th class="py-3 px-4">Nome do Cliente</th>
-                <th class="py-3 px-4">WhatsApp</th>
-                <th class="py-3 px-4">Interesse</th>
-                <th class="py-3 px-4">Etapa Funil</th>
-                <th class="py-3 px-4 text-center">Ações</th>
-              </tr>
-            </thead>
-            <tbody id="clientes-table-body" class="divide-y divide-slate-100 text-sm">
-              <!-- Renderizado via JS -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- 6. CONFIG & SQL TAB -->
-    <section id="tab-config" class="tab-content hidden space-y-6">
-      <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
-        <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-          <i class="fa-solid fa-database text-blue-600"></i> Script SQL para Criação das Tabelas no Supabase
-        </h2>
-        <p class="text-xs text-slate-600 leading-relaxed">
-          Para que a sincronização funcione perfeitamente, copie o código SQL abaixo e rode no <b>SQL Editor</b> dentro do seu painel do Supabase:
-        </p>
-
-        <div class="relative">
-          <button onclick="copiarSQL()" class="absolute top-3 right-3 bg-slate-800 hover:bg-slate-700 text-white text-xs px-3 py-1.5 rounded-lg shadow flex items-center gap-1.5 transition">
-            <i class="fa-regular fa-copy"></i>
-            <span>Copiar SQL</span>
-          </button>
-          <pre id="sql-script-code" class="bg-slate-900 text-emerald-400 p-4 rounded-xl text-xs font-mono overflow-x-auto max-h-96 leading-5">
+            <button onclick="copiarSQL()" class="absolute top-3 right-3 bg-slate-800 hover:bg-slate-700 text-white text-xs px-3 py-1.5 rounded-lg shadow flex items-center gap-1.5 transition">
+              <i class="fa-regular fa-copy"></i>
+              <span>Copiar SQL</span>
+            </button>
+            <pre id="sql-script-code" class="bg-slate-900 text-emerald-400 p-4 rounded-xl text-xs font-mono overflow-x-auto max-h-96 leading-5">
 -- 1. Tabela de Leads / Funil de Vendas
 CREATE TABLE IF NOT EXISTS leads (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -494,28 +546,20 @@ CREATE TABLE IF NOT EXISTS cotas (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 3. Tabela de Lances
-CREATE TABLE IF NOT EXISTS lances (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    cota_id UUID REFERENCES cotas(id) ON DELETE CASCADE,
-    mes_ano VARCHAR(7) NOT NULL,
-    tipo_lance VARCHAR(30) NOT NULL,
-    percentual DECIMAL(5,2) NOT NULL,
-    valor DECIMAL(12,2),
-    contemplado BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
+-- 3. Habilitar RLS para Acesso com Autenticação de Usuários
+ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
+ALTER TABLE cotas ENABLE ROW LEVEL SECURITY;
 
--- Desabilitar RLS para acesso anonimo simples
-ALTER TABLE leads DISABLE ROW LEVEL SECURITY;
-ALTER TABLE cotas DISABLE ROW LEVEL SECURITY;
-ALTER TABLE lances DISABLE ROW LEVEL SECURITY;
-          </pre>
+CREATE POLICY "Acesso Autenticado Leads" ON leads FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Acesso Autenticado Cotas" ON cotas FOR ALL TO authenticated USING (true) WITH CHECK (true);
+            </pre>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-  </main>
+    </main>
+
+  </div>
 
   <!-- ==================== MODALS ==================== -->
 
@@ -647,7 +691,7 @@ ALTER TABLE lances DISABLE ROW LEVEL SECURITY;
           <div>
             <label class="block text-xs font-semibold text-slate-700 mb-1">Etapa Funil</label>
             <select id="lead-etapa" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500">
-              <!-- Preenchido dinamicamente com base nas etapas ativas -->
+              <!-- Preenchido dinamicamente -->
             </select>
           </div>
         </div>
@@ -768,9 +812,9 @@ ALTER TABLE lances DISABLE ROW LEVEL SECURITY;
     ];
 
     let kanbanStages = [];
-
     let supabaseClient = null;
     let isConnected = false;
+    let currentUser = null;
 
     let leads = [];
     let cotas = [];
@@ -781,15 +825,72 @@ ALTER TABLE lances DISABLE ROW LEVEL SECURITY;
       calcularSimulacao();
     });
 
-    // --- GERENCIAMENTO DE ETAPAS / COLUNAS DO KANBAN ---
+    // --- AUTENTICAÇÃO E LOGIN SUPABASE ---
+    async function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      const btn = document.getElementById('btn-submit-login');
+      const errorMsg = document.getElementById('login-error-msg');
+
+      errorMsg.classList.add('hidden');
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>Verificando...</span>`;
+
+      if (!supabaseClient) {
+        // Se nao configurou supabase, permite login local simples
+        if (email && password) {
+          currentUser = { email };
+          showAppScreen();
+        } else {
+          showLoginError('Por favor informe e-mail e senha.');
+        }
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fa-solid fa-right-to-bracket"></i> <span>Entrar no Sistema</span>`;
+        return;
+      }
+
+      try {
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+
+        currentUser = data.user;
+        showAppScreen();
+        await syncData();
+      } catch (err) {
+        showLoginError(err.message || 'Erro ao efetuar login. Verifique as credenciais.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fa-solid fa-right-to-bracket"></i> <span>Entrar no Sistema</span>`;
+      }
+    }
+
+    async function handleLogout() {
+      if (supabaseClient) {
+        await supabaseClient.auth.signOut();
+      }
+      currentUser = null;
+      document.getElementById('login-screen').classList.remove('hidden');
+      document.getElementById('app-content').classList.add('hidden');
+    }
+
+    function showLoginError(msg) {
+      const el = document.getElementById('login-error-msg');
+      el.innerText = msg;
+      el.classList.remove('hidden');
+    }
+
+    function showAppScreen() {
+      document.getElementById('login-screen').classList.add('hidden');
+      document.getElementById('app-content').classList.remove('hidden');
+      renderAll();
+    }
+
+    // --- GERENCIAMENTO DE ETAPAS ---
     function loadStages() {
       const stored = localStorage.getItem('pedro_crm_kanban_stages');
       if (stored) {
-        try {
-          kanbanStages = JSON.parse(stored);
-        } catch (e) {
-          kanbanStages = [...DEFAULT_STAGES];
-        }
+        try { kanbanStages = JSON.parse(stored); } catch (e) { kanbanStages = [...DEFAULT_STAGES]; }
       } else {
         kanbanStages = [...DEFAULT_STAGES];
       }
@@ -836,9 +937,7 @@ ALTER TABLE lances DISABLE ROW LEVEL SECURITY;
     }
 
     function updateStageTitle(index, val) {
-      if (val.trim()) {
-        kanbanStages[index].title = val.trim();
-      }
+      if (val.trim()) kanbanStages[index].title = val.trim();
     }
 
     function updateStageColor(index, color) {
@@ -860,10 +959,8 @@ ALTER TABLE lances DISABLE ROW LEVEL SECURITY;
     }
 
     function removeStage(index) {
-      if (kanbanStages.length <= 1) {
-        return alert('Você precisa manter pelo menos uma etapa no Kanban.');
-      }
-      if (confirm(`Remover a etapa "${kanbanStages[index].title}"? Leads nesta etapa ficarão ocultos até serem reatribuídos.`)) {
+      if (kanbanStages.length <= 1) return alert('Você precisa manter pelo menos uma etapa no Kanban.');
+      if (confirm(`Remover a etapa "${kanbanStages[index].title}"?`)) {
         kanbanStages.splice(index, 1);
         renderStagesEditor();
       }
@@ -882,7 +979,7 @@ ALTER TABLE lances DISABLE ROW LEVEL SECURITY;
       renderAll();
     }
 
-    // --- CONEXÃO SUPABASE ---
+    // --- CONEXÃO E INICIALIZAÇÃO SUPABASE ---
     function initSupabaseFromStorage() {
       const url = localStorage.getItem('pedro_crm_sp_url');
       const key = localStorage.getItem('pedro_crm_sp_key');
@@ -891,8 +988,9 @@ ALTER TABLE lances DISABLE ROW LEVEL SECURITY;
         document.getElementById('cfg-url').value = url;
         document.getElementById('cfg-key').value = key;
         try {
-          supabaseClient = window.supabase.createClient(url, key);
-          testConnectionAndLoad();
+          const cleanUrl = url.replace(/\/rest\/v1\/?$/, '').replace(/\/$/, '');
+          supabaseClient = window.supabase.createClient(cleanUrl, key);
+          checkExistingSession();
           return;
         } catch (err) {
           console.error("Erro ao inicializar Supabase:", err);
@@ -902,20 +1000,20 @@ ALTER TABLE lances DISABLE ROW LEVEL SECURITY;
       setLocalMode();
     }
 
-    async function testConnectionAndLoad() {
+    async function checkExistingSession() {
       if (!supabaseClient) return setLocalMode();
 
-      updateSyncBadge('syncing');
-
       try {
-        const { data, error } = await supabaseClient.from('leads').select('id').limit(1);
-
-        if (error) throw error;
-
-        setConnectedMode();
-        await syncData();
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (session && session.user) {
+          currentUser = session.user;
+          setConnectedMode();
+          showAppScreen();
+          await syncData();
+        } else {
+          setConnectedMode();
+        }
       } catch (err) {
-        console.warn("Falha na conexão Supabase, alternando para local:", err);
         setLocalMode();
       }
     }
@@ -930,7 +1028,7 @@ ALTER TABLE lances DISABLE ROW LEVEL SECURITY;
       badge.className = "px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1";
       dot.className = "w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse";
       text.innerText = "Supabase On";
-      banner.classList.add('hidden');
+      if (banner) banner.classList.add('hidden');
     }
 
     function setLocalMode() {
@@ -945,7 +1043,7 @@ ALTER TABLE lances DISABLE ROW LEVEL SECURITY;
       badge.className = "px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1";
       dot.className = "w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse";
       text.innerText = "Modo Local";
-      banner.classList.remove('hidden');
+      if (banner) banner.classList.remove('hidden');
 
       loadLocalStorageData();
       renderAll();
@@ -968,7 +1066,7 @@ ALTER TABLE lances DISABLE ROW LEVEL SECURITY;
 
     async function syncData() {
       const icon = document.getElementById('sync-icon');
-      icon.classList.add('fa-spin');
+      if (icon) icon.classList.add('fa-spin');
 
       if (isConnected && supabaseClient) {
         try {
@@ -989,15 +1087,9 @@ ALTER TABLE lances DISABLE ROW LEVEL SECURITY;
       }
 
       setTimeout(() => {
-        icon.classList.remove('fa-spin');
+        if (icon) icon.classList.remove('fa-spin');
         renderAll();
       }, 300);
-    }
-
-    function updateSyncBadge(state) {
-      const icon = document.getElementById('sync-icon');
-      if (state === 'syncing') icon.classList.add('fa-spin');
-      else icon.classList.remove('fa-spin');
     }
 
     function renderAll() {
@@ -1087,9 +1179,9 @@ ALTER TABLE lances DISABLE ROW LEVEL SECURITY;
       });
     }
 
-    // RENDERIZAR KANBAN DINÂMICO
     function renderKanban() {
       const wrapper = document.getElementById('kanban-wrapper');
+      if (!wrapper) return;
       wrapper.innerHTML = '';
 
       kanbanStages.forEach(stg => {
@@ -1182,7 +1274,6 @@ ALTER TABLE lances DISABLE ROW LEVEL SECURITY;
       }
     }
 
-    // Função para rolar o Kanban horizontalmente pelos botões
     function scrollKanban(direction) {
       const wrapper = document.getElementById('kanban-wrapper');
       const amount = 300;
