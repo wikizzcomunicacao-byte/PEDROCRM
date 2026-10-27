@@ -40,6 +40,22 @@
     }
   </script>
   <style>
+    /* Barra de rolagem personalizada e visivel para o Kanban */
+    .kanban-scroll::-webkit-scrollbar {
+      height: 10px;
+    }
+    .kanban-scroll::-webkit-scrollbar-track {
+      background: #e2e8f0;
+      border-radius: 8px;
+    }
+    .kanban-scroll::-webkit-scrollbar-thumb {
+      background: #94a3b8;
+      border-radius: 8px;
+    }
+    .kanban-scroll::-webkit-scrollbar-thumb:hover {
+      background: #64748b;
+    }
+
     .kanban-col::-webkit-scrollbar {
       width: 5px;
     }
@@ -50,20 +66,13 @@
       background: #cbd5e1;
       border-radius: 4px;
     }
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
   </style>
 </head>
 <body class="bg-slate-100 font-sans text-slate-800 antialiased min-h-screen flex flex-col selection:bg-blue-500 selection:text-white">
 
   <!-- ==================== HEADER / NAVBAR ==================== -->
   <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-30">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
         
         <!-- Logo & Status -->
@@ -124,8 +133,8 @@
 
   <!-- ==================== TAB NAVIGATION ==================== -->
   <nav class="bg-white border-b border-slate-200 shadow-sm sticky top-16 z-20">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex space-x-1 sm:space-x-6 overflow-x-auto no-scrollbar py-2">
+    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex space-x-1 sm:space-x-6 overflow-x-auto py-2">
         <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="tab-btn flex items-center space-x-2 py-2 px-3 border-b-2 font-semibold text-xs sm:text-sm border-blue-600 text-blue-600 whitespace-nowrap">
           <i class="fa-solid fa-chart-line"></i>
           <span>Dashboard</span>
@@ -155,7 +164,7 @@
   </nav>
 
   <!-- ==================== MAIN CONTENT AREA ==================== -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <main class="flex-1 max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
     <!-- 1. DASHBOARD TAB -->
     <section id="tab-dashboard" class="tab-content space-y-6">
@@ -246,21 +255,31 @@
       </div>
     </section>
 
-    <!-- 2. KANBAN TAB (AJUSTADO APENAS O ESPAÇAMENTO E LARGURA DAS COLUNAS) -->
-    <section id="tab-kanban" class="tab-content hidden">
-      <div class="flex items-center justify-between mb-4">
+    <!-- 2. KANBAN TAB (COM BARRA DE ROLAGEM VISÍVEL E NAVEGAÇÃO POR BOTÕES) -->
+    <section id="tab-kanban" class="tab-content hidden space-y-3">
+      <div class="flex items-center justify-between">
         <div>
           <h2 class="text-lg font-bold text-slate-800">Funil de Vendas de Consórcio</h2>
           <p class="text-xs text-slate-500">Arraste os cards para atualizar a etapa do lead em tempo real.</p>
         </div>
+
+        <!-- Botões de Navegação Rápida do Kanban -->
+        <div class="flex items-center space-x-2 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm">
+          <span class="text-xs font-semibold text-slate-500 mr-1">Rolar Funil:</span>
+          <button onclick="scrollKanban('left')" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs transition">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+          <button onclick="scrollKanban('right')" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs transition">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
       </div>
 
-      <!-- Ajustado para flex container com scroll horizontal e colunas com largura mínima adequada -->
-      <div class="flex overflow-x-auto gap-3.5 items-start pb-4 no-scrollbar">
+      <!-- Container do Kanban com Scroll Visível -->
+      <div id="kanban-wrapper" class="flex overflow-x-auto gap-4 items-start pb-6 pt-1 kanban-scroll">
         
-        <!-- Colunas Kanban com min-w-[280px] e w-[280px] -->
         <!-- Novo Lead -->
-        <div class="bg-slate-200/60 p-3 rounded-2xl border border-slate-300/60 flex flex-col max-h-[calc(100vh-220px)] min-w-[280px] w-[280px] shrink-0">
+        <div class="bg-slate-200/60 p-3 rounded-2xl border border-slate-300/60 flex flex-col max-h-[calc(100vh-220px)] min-w-[270px] w-[270px] shrink-0">
           <div class="flex justify-between items-center mb-3 px-1">
             <span class="font-bold text-xs uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
               <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> Novo Lead
@@ -271,7 +290,7 @@
         </div>
 
         <!-- Contato Inicial -->
-        <div class="bg-slate-200/60 p-3 rounded-2xl border border-slate-300/60 flex flex-col max-h-[calc(100vh-220px)] min-w-[280px] w-[280px] shrink-0">
+        <div class="bg-slate-200/60 p-3 rounded-2xl border border-slate-300/60 flex flex-col max-h-[calc(100vh-220px)] min-w-[270px] w-[270px] shrink-0">
           <div class="flex justify-between items-center mb-3 px-1">
             <span class="font-bold text-xs uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
               <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Contato
@@ -282,7 +301,7 @@
         </div>
 
         <!-- Proposta -->
-        <div class="bg-slate-200/60 p-3 rounded-2xl border border-slate-300/60 flex flex-col max-h-[calc(100vh-220px)] min-w-[280px] w-[280px] shrink-0">
+        <div class="bg-slate-200/60 p-3 rounded-2xl border border-slate-300/60 flex flex-col max-h-[calc(100vh-220px)] min-w-[270px] w-[270px] shrink-0">
           <div class="flex justify-between items-center mb-3 px-1">
             <span class="font-bold text-xs uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
               <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span> Proposta
@@ -293,7 +312,7 @@
         </div>
 
         <!-- Negociação -->
-        <div class="bg-slate-200/60 p-3 rounded-2xl border border-slate-300/60 flex flex-col max-h-[calc(100vh-220px)] min-w-[280px] w-[280px] shrink-0">
+        <div class="bg-slate-200/60 p-3 rounded-2xl border border-slate-300/60 flex flex-col max-h-[calc(100vh-220px)] min-w-[270px] w-[270px] shrink-0">
           <div class="flex justify-between items-center mb-3 px-1">
             <span class="font-bold text-xs uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
               <span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span> Negociação
@@ -304,7 +323,7 @@
         </div>
 
         <!-- Aguardando Pagamento -->
-        <div class="bg-slate-200/60 p-3 rounded-2xl border border-slate-300/60 flex flex-col max-h-[calc(100vh-220px)] min-w-[280px] w-[280px] shrink-0">
+        <div class="bg-slate-200/60 p-3 rounded-2xl border border-slate-300/60 flex flex-col max-h-[calc(100vh-220px)] min-w-[270px] w-[270px] shrink-0">
           <div class="flex justify-between items-center mb-3 px-1">
             <span class="font-bold text-xs uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
               <span class="w-2.5 h-2.5 rounded-full bg-cyan-500"></span> Aguardando
@@ -315,7 +334,7 @@
         </div>
 
         <!-- Ganho -->
-        <div class="bg-emerald-100/60 p-3 rounded-2xl border border-emerald-300/70 flex flex-col max-h-[calc(100vh-220px)] min-w-[280px] w-[280px] shrink-0">
+        <div class="bg-emerald-100/60 p-3 rounded-2xl border border-emerald-300/70 flex flex-col max-h-[calc(100vh-220px)] min-w-[270px] w-[270px] shrink-0">
           <div class="flex justify-between items-center mb-3 px-1">
             <span class="font-bold text-xs uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
               <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Ganho
@@ -326,7 +345,7 @@
         </div>
 
         <!-- Perdido -->
-        <div class="bg-rose-100/40 p-3 rounded-2xl border border-rose-200/70 flex flex-col max-h-[calc(100vh-220px)] min-w-[280px] w-[280px] shrink-0">
+        <div class="bg-rose-100/40 p-3 rounded-2xl border border-rose-200/70 flex flex-col max-h-[calc(100vh-220px)] min-w-[270px] w-[270px] shrink-0">
           <div class="flex justify-between items-center mb-3 px-1">
             <span class="font-bold text-xs uppercase tracking-wider text-rose-700 flex items-center gap-1.5">
               <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Perdido
@@ -556,7 +575,7 @@ CREATE TABLE IF NOT EXISTS lances (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Desabilitar RLS para acesso anonimo simples (ideal para testes/uso direto no frontend)
+-- Desabilitar RLS para acesso anonimo simples
 ALTER TABLE leads DISABLE ROW LEVEL SECURITY;
 ALTER TABLE cotas DISABLE ROW LEVEL SECURITY;
 ALTER TABLE lances DISABLE ROW LEVEL SECURITY;
@@ -754,7 +773,6 @@ ALTER TABLE lances DISABLE ROW LEVEL SECURITY;
 
   <!-- ==================== JAVASCRIPT LOGIC ==================== -->
   <script>
-    // --- ESTADO INICIAL & MOCK ---
     const MOCK_LEADS = [
       { id: '101', nome: 'Ricardo Oliveira', whatsapp: '11999887766', tipo: 'Imóvel', credito: 300000, etapa: 'proposta', obs: 'Prefere imóvel residencial em SP.' },
       { id: '102', nome: 'Beatriz Santos', whatsapp: '21988776655', tipo: 'Automóvel', credito: 75000, etapa: 'ganho', obs: 'Cota de auto já emitida.' },
@@ -771,13 +789,11 @@ ALTER TABLE lances DISABLE ROW LEVEL SECURITY;
     let leads = [];
     let cotas = [];
 
-    // --- CARREGAMENTO INICIAL ---
     window.addEventListener('DOMContentLoaded', () => {
       initSupabaseFromStorage();
       calcularSimulacao();
     });
 
-    // --- FUNÇÕES DE CONEXÃO SUPABASE ---
     function initSupabaseFromStorage() {
       const url = localStorage.getItem('pedro_crm_sp_url');
       const key = localStorage.getItem('pedro_crm_sp_key');
@@ -861,7 +877,6 @@ ALTER TABLE lances DISABLE ROW LEVEL SECURITY;
       localStorage.setItem('pedro_crm_cotas_data', JSON.stringify(cotas));
     }
 
-    // --- SINCRONIZAÇÃO COMPLETA (READ) ---
     async function syncData() {
       const icon = document.getElementById('sync-icon');
       icon.classList.add('fa-spin');
@@ -896,7 +911,6 @@ ALTER TABLE lances DISABLE ROW LEVEL SECURITY;
       else icon.classList.remove('fa-spin');
     }
 
-    // --- RENDERIZAÇÃO DE TELAS ---
     function renderAll() {
       renderDashboard();
       renderKanban();
@@ -904,7 +918,6 @@ ALTER TABLE lances DISABLE ROW LEVEL SECURITY;
       renderClientes();
     }
 
-    // DASHBOARD
     function renderDashboard() {
       const totalLeads = leads.length;
       
@@ -924,12 +937,10 @@ ALTER TABLE lances DISABLE ROW LEVEL SECURITY;
       document.getElementById('dash-credito-ganho').innerText = fmt(creditoGanho);
       document.getElementById('dash-comissao').innerText = fmt(comissao);
 
-      // Header Top Metrics
       document.getElementById('stat-credito').innerText = fmt(creditoGanho);
       document.getElementById('stat-vendas').innerText = ganhoLeads.length + cotas.length;
       document.getElementById('stat-comissao').innerText = fmt(comissao);
 
-      // Render Lista Assembleias
       const assList = document.getElementById('dash-assembleias-list');
       assList.innerHTML = '';
       if (cotas.length === 0) {
@@ -951,7 +962,6 @@ ALTER TABLE lances DISABLE ROW LEVEL SECURITY;
         });
       }
 
-      // Breakdown do Funil
       const funilContainer = document.getElementById('dash-funil-breakdown');
       const etapasDesc = {
         'novo_lead': 'Novo Lead',
@@ -1044,7 +1054,6 @@ ALTER TABLE lances DISABLE ROW LEVEL SECURITY;
         lead.etapa = targetStage;
         renderAll();
 
-        // Sync Supabase ou Local
         if (isConnected && supabaseClient) {
           try {
             await supabaseClient.from('leads').update({ etapa: targetStage }).eq('id', id);
@@ -1057,7 +1066,17 @@ ALTER TABLE lances DISABLE ROW LEVEL SECURITY;
       }
     }
 
-    // COTAS
+    // Função para rolar o Kanban horizontalmente pelos botões
+    function scrollKanban(direction) {
+      const wrapper = document.getElementById('kanban-wrapper');
+      const amount = 300;
+      if (direction === 'left') {
+        wrapper.scrollBy({ left: -amount, behavior: 'smooth' });
+      } else {
+        wrapper.scrollBy({ left: amount, behavior: 'smooth' });
+      }
+    }
+
     function renderCotas() {
       const grid = document.getElementById('cotas-grid');
       const statusFilter = document.getElementById('filter-cotas-status').value;
@@ -1113,7 +1132,6 @@ ALTER TABLE lances DISABLE ROW LEVEL SECURITY;
       });
     }
 
-    // CLIENTES TABLE
     function renderClientes() {
       const tbody = document.getElementById('clientes-table-body');
       const search = document.getElementById('search-clientes').value.toLowerCase();
@@ -1148,7 +1166,6 @@ ALTER TABLE lances DISABLE ROW LEVEL SECURITY;
       });
     }
 
-    // --- SIMULADOR CALCULATOR ---
     function calcularSimulacao() {
       const credito = parseFloat(document.getElementById('sim-credito').value) || 0;
       const prazo = parseFloat(document.getElementById('sim-prazo').value) || 1;
@@ -1216,7 +1233,6 @@ ALTER TABLE lances DISABLE ROW LEVEL SECURITY;
       window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
     }
 
-    // --- CRUD OPERAÇÕES (LEAD / COTA) ---
     async function saveLead(e) {
       e.preventDefault();
       const id = document.getElementById('lead-id').value;
@@ -1319,7 +1335,6 @@ ALTER TABLE lances DISABLE ROW LEVEL SECURITY;
       }
     }
 
-    // --- MODAIS CONTROLE ---
     function openConfigModal() {
       document.getElementById('modal-config').classList.remove('hidden');
     }
@@ -1371,7 +1386,6 @@ ALTER TABLE lances DISABLE ROW LEVEL SECURITY;
       document.getElementById('modal-cota').classList.add('hidden');
     }
 
-    // --- CONFIGURAR SUPABASE & TESTAR ---
     function salvarConfiguracao() {
       const url = document.getElementById('cfg-url').value.trim();
       const key = document.getElementById('cfg-key').value.trim();
@@ -1419,7 +1433,6 @@ ALTER TABLE lances DISABLE ROW LEVEL SECURITY;
       closeConfigModal();
     }
 
-    // UTILS
     function switchTab(tabName) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
       document.querySelectorAll('.tab-btn').forEach(btn => {
