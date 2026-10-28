@@ -69,7 +69,7 @@
 </head>
 <body class="bg-slate-100 font-sans text-slate-800 antialiased min-h-screen flex flex-col selection:bg-blue-500 selection:text-white">
 
-  <!-- ==================== TELA DE LOGIN (SEM OPÇÃO DE CONFIGURAR BANCO) ==================== -->
+  <!-- ==================== TELA DE LOGIN ==================== -->
   <div id="login-screen" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-800">
       <div class="bg-slate-900 text-white p-8 text-center border-b border-slate-800">
@@ -119,7 +119,6 @@
       <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
           
-          <!-- Logo & Status -->
           <div class="flex items-center space-x-3">
             <div class="bg-blue-600 p-2 rounded-xl text-white shadow-md shadow-blue-500/30">
               <i class="fa-solid fa-chart-pie text-xl"></i>
@@ -136,7 +135,7 @@
             </div>
           </div>
 
-          <!-- Metric Badges (Desktop Header) -->
+          <!-- Metric Badges -->
           <div class="hidden lg:flex items-center space-x-5 bg-slate-800/80 px-4 py-1.5 rounded-xl border border-slate-700/80 text-xs">
             <div>
               <span class="text-slate-400 block text-[9px] font-semibold uppercase">Total Crédito</span>
@@ -154,7 +153,6 @@
             </div>
           </div>
 
-          <!-- Action Buttons & User Info -->
           <div class="flex items-center space-x-2">
             <button onclick="syncData()" title="Sincronizar dados agora" class="bg-slate-800 hover:bg-slate-700 text-slate-200 p-2.5 rounded-xl border border-slate-700 transition">
               <i id="sync-icon" class="fa-solid fa-rotate text-sm"></i>
@@ -214,10 +212,7 @@
 
       <!-- 1. DASHBOARD TAB -->
       <section id="tab-dashboard" class="tab-content space-y-6">
-        
-        <!-- Stat Cards Grid -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          
           <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
             <div class="flex items-center justify-between text-slate-400 mb-2">
               <span class="text-xs font-bold uppercase tracking-wider">Total Leads</span>
@@ -253,13 +248,9 @@
             <p id="dash-comissao" class="text-2xl font-bold text-purple-600">R$ 0,00</p>
             <span class="text-[10px] text-slate-400">Projeção de 1.5%</span>
           </div>
-
         </div>
 
-        <!-- Quick Summary Charts/Lists -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          
-          <!-- Próximas Assembleias -->
           <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
             <div class="flex justify-between items-center">
               <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
@@ -267,21 +258,15 @@
               </h3>
               <button onclick="switchTab('cotas')" class="text-xs text-blue-600 font-semibold hover:underline">Ver todas</button>
             </div>
-            <div id="dash-assembleias-list" class="space-y-2 max-h-56 overflow-y-auto">
-              <!-- Inserido dinamicamente -->
-            </div>
+            <div id="dash-assembleias-list" class="space-y-2 max-h-56 overflow-y-auto"></div>
           </div>
 
-          <!-- Resumo de Leads por Etapa -->
           <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
             <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
               <i class="fa-solid fa-filter text-indigo-500"></i> Distribuição do Funil
             </h3>
-            <div id="dash-funil-breakdown" class="space-y-2 text-xs">
-              <!-- Inserido dinamicamente -->
-            </div>
+            <div id="dash-funil-breakdown" class="space-y-2 text-xs"></div>
           </div>
-
         </div>
       </section>
 
@@ -311,9 +296,7 @@
           </div>
         </div>
 
-        <div id="kanban-wrapper" class="flex overflow-x-auto gap-4 items-start pb-6 pt-1 kanban-scroll">
-          <!-- Colunas geradas via JS -->
-        </div>
+        <div id="kanban-wrapper" class="flex overflow-x-auto gap-4 items-start pb-6 pt-1 kanban-scroll"></div>
       </section>
 
       <!-- 3. COTAS & ASSEMBLEIAS TAB -->
@@ -336,9 +319,7 @@
           </div>
         </div>
 
-        <div id="cotas-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <!-- Inserido dinamicamente -->
-        </div>
+        <div id="cotas-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
       </section>
 
       <!-- 4. SIMULADOR TAB -->
@@ -352,10 +333,8 @@
           </div>
 
           <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-            
             <div class="space-y-4">
               <h3 class="font-bold text-slate-800 text-sm border-b pb-2">Parâmetros do Consórcio</h3>
-              
               <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1">Valor do Crédito (R$)</label>
                 <input type="number" id="sim-credito" value="200000" oninput="calcularSimulacao()" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-blue-500 focus:border-blue-500" />
@@ -436,7 +415,6 @@
                 <span>Enviar Proposta no WhatsApp</span>
               </button>
             </div>
-
           </div>
         </div>
       </section>
@@ -467,9 +445,7 @@
                   <th class="py-3 px-4 text-center">Ações</th>
                 </tr>
               </thead>
-              <tbody id="clientes-table-body" class="divide-y divide-slate-100 text-sm">
-                <!-- Renderizado via JS -->
-              </tbody>
+              <tbody id="clientes-table-body" class="divide-y divide-slate-100 text-sm"></tbody>
             </table>
           </div>
         </div>
@@ -535,7 +511,6 @@ CREATE POLICY "Acesso Autenticado Cotas" ON cotas FOR ALL TO authenticated USING
   </div>
 
   <!-- ==================== MODALS ==================== -->
-
   <!-- MODAL: GERENCIAR ETAPAS DO KANBAN -->
   <div id="modal-stages" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
@@ -568,9 +543,7 @@ CREATE POLICY "Acesso Autenticado Cotas" ON cotas FOR ALL TO authenticated USING
 
         <div class="space-y-2 max-h-64 overflow-y-auto pr-1">
           <label class="block text-xs font-bold text-slate-700">Etapas Ativas</label>
-          <div id="stages-list-editor" class="space-y-2">
-            <!-- Renderizado via JS -->
-          </div>
+          <div id="stages-list-editor" class="space-y-2"></div>
         </div>
 
         <div class="flex justify-between items-center pt-3 border-t">
@@ -622,9 +595,7 @@ CREATE POLICY "Acesso Autenticado Cotas" ON cotas FOR ALL TO authenticated USING
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-700 mb-1">Etapa Funil</label>
-            <select id="lead-etapa" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500">
-              <!-- Preenchido dinamicamente -->
-            </select>
+            <select id="lead-etapa" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500"></select>
           </div>
         </div>
 
@@ -652,9 +623,7 @@ CREATE POLICY "Acesso Autenticado Cotas" ON cotas FOR ALL TO authenticated USING
       <form id="form-cota" onsubmit="saveCota(event)" class="p-6 space-y-3">
         <div>
           <label class="block text-xs font-semibold text-slate-700 mb-1">Cliente Vinculado</label>
-          <select id="cota-lead-id" required class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500">
-            <!-- Populado via JS -->
-          </select>
+          <select id="cota-lead-id" required class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500"></select>
         </div>
 
         <div class="grid grid-cols-3 gap-2">
@@ -723,9 +692,9 @@ CREATE POLICY "Acesso Autenticado Cotas" ON cotas FOR ALL TO authenticated USING
 
   <!-- ==================== JAVASCRIPT LOGIC ==================== -->
   <script>
-    // CREDENCIAIS FIXAS DO SEU SUPABASE (Protegidas contra alteração por terceiros na tela de login)
+    // CREDENCIAIS FIXAS DO SEU SUPABASE
     const SUPABASE_URL = "https://eqcetjeqvozacgfqvrki.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxY2V0amVxdm96YWNnZnF2cmtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2NzkzNTYsImV4cCI6MjA4NjI1NTM1Nn0.S0oQJd8pBskYqZq2A8y2S3m4v5n6p7q8r9s0t1u2v3w"; // Substitua caso necessário pela sua chave anon real se houver alteração
+    const SUPABASE_ANON_KEY = "sb_publishable_LjmAghqsHWvhHNl7fpF9Tw_yXLIWc1M";
 
     const MOCK_LEADS = [
       { id: '101', nome: 'Ricardo Oliveira', whatsapp: '11999887766', tipo: 'Imóvel', credito: 300000, etapa: 'proposta', obs: 'Prefere imóvel residencial em SP.' },
