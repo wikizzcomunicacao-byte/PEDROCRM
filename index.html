@@ -692,9 +692,10 @@ CREATE POLICY "Acesso Autenticado Cotas" ON cotas FOR ALL TO authenticated USING
 
   <!-- ==================== JAVASCRIPT LOGIC ==================== -->
   <script>
-    // CREDENCIAIS FIXAS DO SEU SUPABASE
+    // CREDENCIAIS FIXAS DO SUPABASE E E-MAIL EXCLUSIVO AUTORIZADO
     const SUPABASE_URL = "https://eqcetjeqvozacgfqvrki.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_LjmAghqsHWvhHNl7fpF9Tw_yXLIWc1M";
+    const EMAIL_AUTORIZADO = "pedro@crm.com.br"; // Altere aqui se o seu e-mail de login for outro
 
     const MOCK_LEADS = [
       { id: '101', nome: 'Ricardo Oliveira', whatsapp: '11999887766', tipo: 'Imóvel', credito: 300000, etapa: 'proposta', obs: 'Prefere imóvel residencial em SP.' },
@@ -730,7 +731,7 @@ CREATE POLICY "Acesso Autenticado Cotas" ON cotas FOR ALL TO authenticated USING
       calcularSimulacao();
     });
 
-    // --- AUTENTICAÇÃO E LOGIN SUPABASE ---
+    // --- AUTENTICAÇÃO E LOGIN COM TRAVA DE E-MAIL EXCLUSIVO ---
     async function handleLogin(e) {
       e.preventDefault();
       const email = document.getElementById('login-email').value.trim();
@@ -739,6 +740,13 @@ CREATE POLICY "Acesso Autenticado Cotas" ON cotas FOR ALL TO authenticated USING
       const errorMsg = document.getElementById('login-error-msg');
 
       errorMsg.classList.add('hidden');
+
+      // Trava de segurança: impede login se o e-mail não for o autorizado
+      if (email.toLowerCase() !== EMAIL_AUTORIZADO.toLowerCase()) {
+        showLoginError('Acesso negado: Este e-mail não tem permissão para aceder a este sistema.');
+        return;
+      }
+
       btn.disabled = true;
       btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>Verificando...</span>`;
 
