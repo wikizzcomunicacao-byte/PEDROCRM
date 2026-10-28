@@ -1,38 +1,1482 @@
-async function handleLogin(e) {
-  e.preventDefault();
-  const email = document.getElementById('login-email').value.trim();
-  const password = document.getElementById('login-password').value;
-  const btn = document.getElementById('btn-submit-login');
-  const errorMsg = document.getElementById('login-error-msg');
-
-  errorMsg.classList.add('hidden');
-
-  if (email.toLowerCase() !== EMAIL_AUTORIZADO.toLowerCase()) {
-    showLoginError('Acesso negado: Este e-mail não tem permissão para aceder a este sistema.');
-    return;
-  }
-
-  btn.disabled = true;
-  btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>Verificando...</span>`;
-
-  try {
-    console.log("A tentar autenticar com:", email);
-    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-    
-    if (error) {
-      console.error("Erro retornado pelo Supabase:", error);
-      throw error;
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pedro CRM - Consórcios & Supabase Sync</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- FontAwesome Icons CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  
+  <!-- Supabase JS Client v2 CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- Google Fonts Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f0f7ff',
+              100: '#e0effe',
+              500: '#2563eb',
+              600: '#1d4ed8',
+              700: '#1e40af',
+              800: '#1e3a8a',
+              900: '#0f172a'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .kanban-scroll::-webkit-scrollbar {
+      height: 10px;
+    }
+    .kanban-scroll::-webkit-scrollbar-track {
+      background: #e2e8f0;
+      border-radius: 8px;
+    }
+    .kanban-scroll::-webkit-scrollbar-thumb {
+      background: #94a3b8;
+      border-radius: 8px;
+    }
+    .kanban-scroll::-webkit-scrollbar-thumb:hover {
+      background: #64748b;
     }
 
-    console.log("Login efetuado com sucesso!", data);
-    currentUser = data.user;
-    showAppScreen();
-    await syncData();
-  } catch (err) {
-    console.error("Catch capturou o erro:", err);
-    showLoginError(err.message || 'Erro ao efetuar login. Verifique as credenciais.');
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = `<i class="fa-solid fa-right-to-bracket"></i> <span>Entrar no Sistema</span>`;
-  }
-}
+    .kanban-col::-webkit-scrollbar {
+      width: 5px;
+    }
+    .kanban-col::-webkit-scrollbar-track {
+      background: rgba(241, 245, 249, 0.5);
+    }
+    .kanban-col::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 font-sans text-slate-800 antialiased min-h-screen flex flex-col selection:bg-blue-500 selection:text-white">
+
+  <!-- ==================== TELA DE LOGIN ==================== -->
+  <div id="login-screen" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-800">
+      <div class="bg-slate-900 text-white p-8 text-center border-b border-slate-800">
+        <div class="inline-flex bg-blue-600 p-3 rounded-2xl text-white shadow-lg shadow-blue-500/30 mb-3">
+          <i class="fa-solid fa-chart-pie text-2xl"></i>
+        </div>
+        <h2 class="text-2xl font-bold tracking-tight">Pedro <span class="text-blue-400">CRM</span></h2>
+        <p class="text-xs text-slate-400 mt-1">Gestão de Consórcios • Acesso Restrito</p>
+      </div>
+
+      <form id="form-login" onsubmit="handleLogin(event)" class="p-8 space-y-4">
+        <div id="login-error-msg" class="hidden bg-rose-50 border border-rose-200 text-rose-700 p-3 rounded-xl text-xs font-medium"></div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">E-mail do Usuário</label>
+          <div class="relative">
+            <i class="fa-solid fa-envelope absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+            <input type="email" id="login-email" required placeholder="seuemail@exemplo.com" class="w-full pl-9 pr-4 py-2.5 border border-slate-300 rounded-xl text-xs focus:ring-blue-500 focus:border-blue-500 outline-none transition" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Senha de Acesso</label>
+          <div class="relative">
+            <i class="fa-solid fa-lock absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+            <input type="password" id="login-password" required placeholder="••••••••" class="w-full pl-9 pr-4 py-2.5 border border-slate-300 rounded-xl text-xs focus:ring-blue-500 focus:border-blue-500 outline-none transition" />
+          </div>
+        </div>
+
+        <button type="submit" id="btn-submit-login" class="w-full bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-bold text-xs py-3 rounded-xl transition shadow-lg shadow-blue-600/30 flex items-center justify-center space-x-2 mt-2">
+          <i class="fa-solid fa-right-to-bracket"></i>
+          <span>Entrar no Sistema</span>
+        </button>
+
+        <div class="pt-4 border-t border-slate-100 text-center text-[11px] text-slate-400">
+          <span>Autenticação Segura via Supabase Auth</span>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== APLICAÇÃO PRINCIPAL ==================== -->
+  <div id="app-content" class="hidden flex-1 flex flex-col min-h-screen">
+
+    <!-- ==================== HEADER / NAVBAR ==================== -->
+    <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-30">
+      <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          
+          <div class="flex items-center space-x-3">
+            <div class="bg-blue-600 p-2 rounded-xl text-white shadow-md shadow-blue-500/30">
+              <i class="fa-solid fa-chart-pie text-xl"></i>
+            </div>
+            <div>
+              <div class="flex items-center space-x-2">
+                <h1 class="text-xl font-bold tracking-tight text-white leading-none">Pedro <span class="text-blue-400">CRM</span></h1>
+                <span id="conn-badge" class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
+                  <span id="conn-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span id="conn-text">Supabase Conectado</span>
+                </span>
+              </div>
+              <p class="text-[11px] text-slate-400 hidden sm:block">Gestão de Consórcios Segura</p>
+            </div>
+          </div>
+
+          <!-- Metric Badges -->
+          <div class="hidden lg:flex items-center space-x-5 bg-slate-800/80 px-4 py-1.5 rounded-xl border border-slate-700/80 text-xs">
+            <div>
+              <span class="text-slate-400 block text-[9px] font-semibold uppercase">Total Crédito</span>
+              <span id="stat-credito" class="font-bold text-emerald-400">R$ 0,00</span>
+            </div>
+            <div class="h-6 w-px bg-slate-700"></div>
+            <div>
+              <span class="text-slate-400 block text-[9px] font-semibold uppercase">Vendas Ganhas</span>
+              <span id="stat-vendas" class="font-bold text-blue-400">0</span>
+            </div>
+            <div class="h-6 w-px bg-slate-700"></div>
+            <div>
+              <span class="text-slate-400 block text-[9px] font-semibold uppercase">Comissão Est. (1.5%)</span>
+              <span id="stat-comissao" class="font-bold text-purple-400">R$ 0,00</span>
+            </div>
+          </div>
+
+          <div class="flex items-center space-x-2">
+            <button onclick="syncData()" title="Sincronizar dados agora" class="bg-slate-800 hover:bg-slate-700 text-slate-200 p-2.5 rounded-xl border border-slate-700 transition">
+              <i id="sync-icon" class="fa-solid fa-rotate text-sm"></i>
+            </button>
+
+            <button onclick="openLeadModal()" class="bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-medium text-xs px-3.5 py-2.5 rounded-xl transition shadow-md flex items-center space-x-1.5">
+              <i class="fa-solid fa-plus"></i>
+              <span class="hidden sm:inline">Novo Lead</span>
+            </button>
+
+            <div class="h-6 w-px bg-slate-800 mx-1"></div>
+
+            <button onclick="handleLogout()" title="Sair do Sistema" class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 p-2.5 rounded-xl border border-rose-500/20 transition flex items-center gap-1.5 text-xs font-bold">
+              <i class="fa-solid fa-right-from-bracket"></i>
+              <span class="hidden sm:inline">Sair</span>
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </header>
+
+    <!-- ==================== TAB NAVIGATION ==================== -->
+    <nav class="bg-white border-b border-slate-200 shadow-sm sticky top-16 z-20">
+      <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex space-x-1 sm:space-x-6 overflow-x-auto py-2">
+          <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="tab-btn flex items-center space-x-2 py-2 px-3 border-b-2 font-semibold text-xs sm:text-sm border-blue-600 text-blue-600 whitespace-nowrap">
+            <i class="fa-solid fa-chart-line"></i>
+            <span>Dashboard</span>
+          </button>
+          <button onclick="switchTab('kanban')" id="tab-btn-kanban" class="tab-btn flex items-center space-x-2 py-2 px-3 border-b-2 font-semibold text-xs sm:text-sm border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap">
+            <i class="fa-solid fa-columns"></i>
+            <span>Funil Kanban</span>
+          </button>
+          <button onclick="switchTab('cotas')" id="tab-btn-cotas" class="tab-btn flex items-center space-x-2 py-2 px-3 border-b-2 font-semibold text-xs sm:text-sm border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap">
+            <i class="fa-solid fa-file-contract"></i>
+            <span>Cotas & Assembleias</span>
+          </button>
+          <button onclick="switchTab('simulador')" id="tab-btn-simulador" class="tab-btn flex items-center space-x-2 py-2 px-3 border-b-2 font-semibold text-xs sm:text-sm border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap">
+            <i class="fa-solid fa-calculator"></i>
+            <span>Simulador</span>
+          </button>
+          <button onclick="switchTab('clientes')" id="tab-btn-clientes" class="tab-btn flex items-center space-x-2 py-2 px-3 border-b-2 font-semibold text-xs sm:text-sm border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap">
+            <i class="fa-solid fa-users"></i>
+            <span>Clientes</span>
+          </button>
+          <button onclick="switchTab('config')" id="tab-btn-config" class="tab-btn flex items-center space-x-2 py-2 px-3 border-b-2 font-semibold text-xs sm:text-sm border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap">
+            <i class="fa-solid fa-code"></i>
+            <span>Script SQL</span>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ==================== MAIN CONTENT AREA ==================== -->
+    <main class="flex-1 max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+      <!-- 1. DASHBOARD TAB -->
+      <section id="tab-dashboard" class="tab-content space-y-6">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between text-slate-400 mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider">Total Leads</span>
+              <i class="fa-solid fa-users text-blue-500"></i>
+            </div>
+            <p id="dash-total-leads" class="text-2xl font-bold text-slate-800">0</p>
+            <span class="text-[10px] text-slate-400">Cadastrados no sistema</span>
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between text-slate-400 mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider">Em Negociação</span>
+              <i class="fa-solid fa-comments-dollar text-amber-500"></i>
+            </div>
+            <p id="dash-credito-negociacao" class="text-2xl font-bold text-slate-800">R$ 0,00</p>
+            <span class="text-[10px] text-slate-400">Pipeline ativo</span>
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between text-slate-400 mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider">Vendas Fechadas</span>
+              <i class="fa-solid fa-circle-check text-emerald-500"></i>
+            </div>
+            <p id="dash-credito-ganho" class="text-2xl font-bold text-emerald-600">R$ 0,00</p>
+            <span class="text-[10px] text-slate-400">Crédito total vendido</span>
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between text-slate-400 mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider">Comissão Est.</span>
+              <i class="fa-solid fa-hand-holding-dollar text-purple-500"></i>
+            </div>
+            <p id="dash-comissao" class="text-2xl font-bold text-purple-600">R$ 0,00</p>
+            <span class="text-[10px] text-slate-400">Projeção de 1.5%</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+            <div class="flex justify-between items-center">
+              <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
+                <i class="fa-solid fa-calendar-days text-blue-500"></i> Próximas Assembleias de Cotas
+              </h3>
+              <button onclick="switchTab('cotas')" class="text-xs text-blue-600 font-semibold hover:underline">Ver todas</button>
+            </div>
+            <div id="dash-assembleias-list" class="space-y-2 max-h-56 overflow-y-auto"></div>
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+            <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-filter text-indigo-500"></i> Distribuição do Funil
+            </h3>
+            <div id="dash-funil-breakdown" class="space-y-2 text-xs"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. KANBAN TAB -->
+      <section id="tab-kanban" class="tab-content hidden space-y-3">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <div>
+            <h2 class="text-lg font-bold text-slate-800">Funil de Vendas de Consórcio</h2>
+            <p class="text-xs text-slate-500">Arraste os cards para atualizar a etapa do lead em tempo real.</p>
+          </div>
+
+          <div class="flex items-center space-x-2">
+            <button onclick="openStagesModal()" class="bg-slate-800 hover:bg-slate-700 text-white font-medium text-xs px-3 py-2 rounded-xl transition shadow-sm flex items-center space-x-1.5">
+              <i class="fa-solid fa-pen-to-square text-blue-400"></i>
+              <span>Gerenciar Etapas</span>
+            </button>
+
+            <div class="flex items-center space-x-1 bg-white px-2.5 py-1.5 rounded-xl border border-slate-200 shadow-sm">
+              <span class="text-xs font-semibold text-slate-500 mr-1 hidden sm:inline">Rolar:</span>
+              <button onclick="scrollKanban('left')" class="p-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs transition">
+                <i class="fa-solid fa-chevron-left"></i>
+              </button>
+              <button onclick="scrollKanban('right')" class="p-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs transition">
+                <i class="fa-solid fa-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div id="kanban-wrapper" class="flex overflow-x-auto gap-4 items-start pb-6 pt-1 kanban-scroll"></div>
+      </section>
+
+      <!-- 3. COTAS & ASSEMBLEIAS TAB -->
+      <section id="tab-cotas" class="tab-content hidden space-y-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+          <div>
+            <h2 class="text-lg font-bold text-slate-800">Gestão de Cotas & Calendário de Assembleias</h2>
+            <p class="text-xs text-slate-500">Acompanhamento das cotas ativas, contemplações e ofertas de lance.</p>
+          </div>
+          <div class="flex items-center space-x-3 w-full sm:w-auto">
+            <select id="filter-cotas-status" onchange="renderCotas()" class="bg-slate-50 border border-slate-300 text-xs rounded-xl p-2.5 text-slate-700 focus:ring-blue-500 focus:border-blue-500">
+              <option value="todos">Todas as Cotas</option>
+              <option value="ativa">Somente Ativas</option>
+              <option value="contemplada">Somente Contempladas</option>
+            </select>
+            <button onclick="openCotaModal()" class="bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs px-4 py-2.5 rounded-xl transition shadow flex items-center space-x-1.5 whitespace-nowrap">
+              <i class="fa-solid fa-plus"></i>
+              <span>Nova Cota</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="cotas-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </section>
+
+      <!-- 4. SIMULADOR TAB -->
+      <section id="tab-simulador" class="tab-content hidden max-w-4xl mx-auto">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+          <div class="bg-slate-900 text-white p-6">
+            <h2 class="text-xl font-bold flex items-center gap-2">
+              <i class="fa-solid fa-calculator text-blue-400"></i> Calculadora & Simulador de Lance
+            </h2>
+            <p class="text-xs text-slate-400 mt-1">Calcule lances embutidos, livres e abatimentos de prazo ou parcela para enviar propostas no WhatsApp.</p>
+          </div>
+
+          <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-4">
+              <h3 class="font-bold text-slate-800 text-sm border-b pb-2">Parâmetros do Consórcio</h3>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Valor do Crédito (R$)</label>
+                <input type="number" id="sim-credito" value="200000" oninput="calcularSimulacao()" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-blue-500 focus:border-blue-500" />
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 mb-1">Prazo (Meses)</label>
+                  <input type="number" id="sim-prazo" value="180" oninput="calcularSimulacao()" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-blue-500 focus:border-blue-500" />
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 mb-1">Taxa Adm. (%)</label>
+                  <input type="number" id="sim-taxa" value="18" step="0.5" oninput="calcularSimulacao()" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-blue-500 focus:border-blue-500" />
+                </div>
+              </div>
+
+              <hr class="my-2" />
+              <h3 class="font-bold text-slate-800 text-sm border-b pb-2">Estratégia de Lance</h3>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 mb-1">Lance Livre (R$)</label>
+                  <input type="number" id="sim-lance-livre" value="40000" oninput="calcularSimulacao()" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-blue-500 focus:border-blue-500" />
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 mb-1">Lance Embutido (%)</label>
+                  <input type="number" id="sim-lance-embutido-pct" value="10" min="0" max="30" oninput="calcularSimulacao()" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-blue-500 focus:border-blue-500" />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Opção de Abatimento</label>
+                <select id="sim-modo-abatimento" onchange="calcularSimulacao()" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-blue-500 focus:border-blue-500">
+                  <option value="parcela">Reduzir Valor da Parcela</option>
+                  <option value="prazo">Reduzir Prazo (Quantidade de Parcelas)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 flex flex-col justify-between space-y-4">
+              <div>
+                <h3 class="font-bold text-slate-800 text-sm border-b pb-2 mb-4">Resumo da Proposta</h3>
+                
+                <div class="space-y-3 text-sm">
+                  <div class="flex justify-between py-1 border-b border-slate-200">
+                    <span class="text-slate-600">Crédito Líquido na Mão:</span>
+                    <span id="res-credito-liquido" class="font-bold text-emerald-600">R$ 0,00</span>
+                  </div>
+                  <div class="flex justify-between py-1 border-b border-slate-200">
+                    <span class="text-slate-600">Parcela Inicial:</span>
+                    <span id="res-parcela-inicial" class="font-semibold text-slate-800">R$ 0,00</span>
+                  </div>
+                  <div class="flex justify-between py-1 border-b border-slate-200">
+                    <span class="text-slate-600">Total do Lance Ofertado:</span>
+                    <span id="res-lance-total" class="font-bold text-blue-600">R$ 0,00 (0%)</span>
+                  </div>
+                  <div class="flex justify-between py-1 border-b border-slate-200">
+                    <span class="text-slate-600">-> Em Dinheiro (Livre):</span>
+                    <span id="res-lance-livre" class="font-medium">R$ 0,00</span>
+                  </div>
+                  <div class="flex justify-between py-1 border-b border-slate-200">
+                    <span class="text-slate-600">-> Do Próprio Crédito (Embutido):</span>
+                    <span id="res-lance-embutido" class="font-medium">R$ 0,00</span>
+                  </div>
+
+                  <div class="bg-blue-50 p-3 rounded-xl border border-blue-200 mt-4">
+                    <span class="text-xs text-blue-800 font-semibold block mb-1">Pós-Contemplação:</span>
+                    <div class="flex justify-between text-sm font-bold text-blue-900">
+                      <span id="res-rotulo-pos">Nova Parcela:</span>
+                      <span id="res-valor-pos">R$ 0,00</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <button onclick="enviarPropostaSimuladaWhats()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl transition shadow flex items-center justify-center space-x-2">
+                <i class="fa-brands fa-whatsapp text-lg"></i>
+                <span>Enviar Proposta no WhatsApp</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. CLIENTES TAB -->
+      <section id="tab-clientes" class="tab-content hidden space-y-4">
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
+          <div class="w-full md:w-1/3">
+            <div class="relative">
+              <i class="fa-solid fa-search absolute left-3 top-3 text-slate-400 text-xs"></i>
+              <input type="text" id="search-clientes" oninput="renderClientes()" placeholder="Buscar cliente por nome ou WhatsApp..." class="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-xl text-xs focus:ring-blue-500 focus:border-blue-500" />
+            </div>
+          </div>
+          <div class="text-xs text-slate-500">
+            Total de registros: <span id="total-clientes-registros" class="font-bold text-slate-800">0</span>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider font-semibold border-b border-slate-200">
+                  <th class="py-3 px-4">Nome do Cliente</th>
+                  <th class="py-3 px-4">WhatsApp</th>
+                  <th class="py-3 px-4">Interesse</th>
+                  <th class="py-3 px-4">Etapa Funil</th>
+                  <th class="py-3 px-4 text-center">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="clientes-table-body" class="divide-y divide-slate-100 text-sm"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. CONFIG & SQL TAB -->
+      <section id="tab-config" class="tab-content hidden space-y-6">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+          <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+            <i class="fa-solid fa-database text-blue-600"></i> Script SQL para Criação das Tabelas no Supabase
+          </h2>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Para que a sincronização e autenticação funcionem perfeitamente, rode este código no <b>SQL Editor</b> do seu Supabase:
+          </p>
+
+          <div class="relative">
+            <button onclick="copiarSQL()" class="absolute top-3 right-3 bg-slate-800 hover:bg-slate-700 text-white text-xs px-3 py-1.5 rounded-lg shadow flex items-center gap-1.5 transition">
+              <i class="fa-regular fa-copy"></i>
+              <span>Copiar SQL</span>
+            </button>
+            <pre id="sql-script-code" class="bg-slate-900 text-emerald-400 p-4 rounded-xl text-xs font-mono overflow-x-auto max-h-96 leading-5">
+-- 1. Tabela de Leads / Funil de Vendas
+CREATE TABLE IF NOT EXISTS leads (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    nome VARCHAR(100) NOT NULL,
+    whatsapp VARCHAR(20) NOT NULL,
+    tipo VARCHAR(30) DEFAULT 'Imóvel',
+    credito DECIMAL(12,2) DEFAULT 0,
+    etapa VARCHAR(30) DEFAULT 'novo_lead',
+    obs TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 2. Tabela de Cotas
+CREATE TABLE IF NOT EXISTS cotas (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    lead_id UUID REFERENCES leads(id) ON DELETE SET NULL,
+    administradora VARCHAR(50) NOT NULL,
+    grupo VARCHAR(20) NOT NULL,
+    cota VARCHAR(20) NOT NULL,
+    credito DECIMAL(12,2) NOT NULL,
+    parcela DECIMAL(10,2) NOT NULL,
+    vencimento INT CHECK (vencimento BETWEEN 1 AND 31),
+    assembleia INT CHECK (assembleia BETWEEN 1 AND 31),
+    lance VARCHAR(50) DEFAULT 'Livre',
+    status VARCHAR(30) DEFAULT 'ativa',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 3. Habilitar RLS para Acesso com Autenticação de Usuários
+ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
+ALTER TABLE cotas ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Acesso Autenticado Leads" ON leads FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Acesso Autenticado Cotas" ON cotas FOR ALL TO authenticated USING (true) WITH CHECK (true);
+            </pre>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- ==================== MODALS ==================== -->
+  <!-- MODAL: GERENCIAR ETAPAS DO KANBAN -->
+  <div id="modal-stages" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+      <div class="bg-slate-900 text-white p-4 flex justify-between items-center">
+        <h3 class="font-bold text-sm flex items-center gap-2">
+          <i class="fa-solid fa-pen-to-square text-blue-400"></i> Gerenciar Etapas do Funil
+        </h3>
+        <button onclick="closeStagesModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="p-6 space-y-4">
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+          <label class="block text-xs font-bold text-slate-700">Nova Etapa / Coluna</label>
+          <div class="flex gap-2">
+            <input type="text" id="new-stage-title" placeholder="Nome da etapa (Ex: Visita Agendada)" class="flex-1 border border-slate-300 rounded-xl p-2 text-xs focus:ring-blue-500 focus:border-blue-500" />
+            <select id="new-stage-color" class="border border-slate-300 rounded-xl p-2 text-xs text-slate-700">
+              <option value="blue">Azul</option>
+              <option value="amber">Amarelo</option>
+              <option value="purple">Roxo</option>
+              <option value="indigo">Índigo</option>
+              <option value="cyan">Ciano</option>
+              <option value="emerald">Verde</option>
+              <option value="rose">Rosa/Vermelho</option>
+            </select>
+            <button onclick="addStage()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-3 py-2 rounded-xl transition shrink-0">
+              <i class="fa-solid fa-plus mr-1"></i> Adicionar
+            </button>
+          </div>
+        </div>
+
+        <div class="space-y-2 max-h-64 overflow-y-auto pr-1">
+          <label class="block text-xs font-bold text-slate-700">Etapas Ativas</label>
+          <div id="stages-list-editor" class="space-y-2"></div>
+        </div>
+
+        <div class="flex justify-between items-center pt-3 border-t">
+          <button onclick="resetDefaultStages()" class="text-xs text-slate-500 hover:text-slate-800 underline">Restaurar Padrão</button>
+          <button onclick="saveStagesAndClose()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow">
+            Salvar e Aplicar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: LEAD (NOVO / EDITAR) -->
+  <div id="modal-lead" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+      <div class="bg-slate-900 text-white p-4 flex justify-between items-center">
+        <h3 id="modal-lead-title" class="font-bold text-sm">Novo Lead</h3>
+        <button onclick="closeLeadModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <form id="form-lead" onsubmit="saveLead(event)" class="p-6 space-y-3">
+        <input type="hidden" id="lead-id" />
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Nome do Cliente *</label>
+          <input type="text" id="lead-nome" required placeholder="Ex: Lucas Mendes" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">WhatsApp *</label>
+            <input type="text" id="lead-whatsapp" required placeholder="11988887777" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Tipo de Bem</label>
+            <select id="lead-tipo" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500">
+              <option value="Imóvel">Imóvel</option>
+              <option value="Automóvel">Automóvel</option>
+              <option value="Pesados">Pesados / Máquinas</option>
+              <option value="Serviços">Serviços</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Crédito Pretendido (R$)</label>
+            <input type="number" id="lead-credito" required placeholder="250000" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Etapa Funil</label>
+            <select id="lead-etapa" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500"></select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Observações</label>
+          <textarea id="lead-obs" rows="2" placeholder="Expectativa de parcelas, lance disponível..." class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500"></textarea>
+        </div>
+
+        <div class="pt-3 flex justify-end space-x-2 border-t">
+          <button type="button" onclick="closeLeadModal()" class="px-4 py-2 border rounded-xl text-xs font-semibold text-slate-600">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold shadow">Salvar Lead</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: COTA -->
+  <div id="modal-cota" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+      <div class="bg-slate-900 text-white p-4 flex justify-between items-center">
+        <h3 class="font-bold text-sm">Cadastrar Cota Vendida</h3>
+        <button onclick="closeCotaModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <form id="form-cota" onsubmit="saveCota(event)" class="p-6 space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Cliente Vinculado</label>
+          <select id="cota-lead-id" required class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500"></select>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Admin</label>
+            <input type="text" id="cota-admin" required placeholder="Porto" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Grupo</label>
+            <input type="text" id="cota-grupo" required placeholder="1020" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Cota</label>
+            <input type="text" id="cota-numero" required placeholder="055" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Crédito (R$)</label>
+            <input type="number" id="cota-credito" required placeholder="200000" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Parcela (R$)</label>
+            <input type="number" id="cota-parcela" required placeholder="1250" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Dia Vencimento</label>
+            <input type="number" id="cota-vencimento" min="1" max="31" required placeholder="10" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Dia Assembleia</label>
+            <input type="number" id="cota-assembleia" min="1" max="31" required placeholder="18" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Estratégia Lance</label>
+            <select id="cota-lance" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500">
+              <option value="Livre">Lance Livre</option>
+              <option value="Embutido">Embutido</option>
+              <option value="Fixo">Lance Fixo</option>
+              <option value="Sem Oferta">Apenas Sorteio</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Status</label>
+            <select id="cota-status" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:ring-blue-500 focus:border-blue-500">
+              <option value="ativa">Ativa</option>
+              <option value="contemplada">Contemplada</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="pt-3 flex justify-end space-x-2 border-t">
+          <button type="button" onclick="closeCotaModal()" class="px-4 py-2 border rounded-xl text-xs font-semibold text-slate-600">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow">Salvar Cota</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== JAVASCRIPT LOGIC ==================== -->
+  <script>
+    // CREDENCIAIS FIXAS DO SUPABASE E E-MAIL EXCLUSIVO AUTORIZADO
+    const SUPABASE_URL = "https://eqcetjeqvozacgfqvrki.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_LjmAghqsHWvhHNl7fpF9Tw_yXLIWc1M";
+    const EMAIL_AUTORIZADO = "pedro@crm.com.br"; // Altere aqui se o seu e-mail de login for outro
+
+    const MOCK_LEADS = [
+      { id: '101', nome: 'Ricardo Oliveira', whatsapp: '11999887766', tipo: 'Imóvel', credito: 300000, etapa: 'proposta', obs: 'Prefere imóvel residencial em SP.' },
+      { id: '102', nome: 'Beatriz Santos', whatsapp: '21988776655', tipo: 'Automóvel', credito: 75000, etapa: 'ganho', obs: 'Cota de auto já emitida.' },
+      { id: '103', nome: 'Empresa TransLog', whatsapp: '31977665544', tipo: 'Pesados', credito: 600000, etapa: 'negociacao', obs: 'Renovação de frota de caminhões.' }
+    ];
+
+    const MOCK_COTAS = [
+      { id: '201', lead_id: '102', administradora: 'Porto Seguro', grupo: '3020', cota: '112', credito: 75000, parcela: 580, vencimento: 10, assembleia: 16, lance: 'Livre', status: 'ativa' }
+    ];
+
+    const DEFAULT_STAGES = [
+      { id: 'novo_lead', title: 'Novo Lead', color: 'blue' },
+      { id: 'contato_inicial', title: 'Contato', color: 'amber' },
+      { id: 'proposta', title: 'Proposta', color: 'purple' },
+      { id: 'negociacao', title: 'Negociação', color: 'indigo' },
+      { id: 'aguardando', title: 'Aguardando', color: 'cyan' },
+      { id: 'ganho', title: 'Ganho', color: 'emerald' },
+      { id: 'perdido', title: 'Perdido', color: 'rose' }
+    ];
+
+    let kanbanStages = [];
+    let supabaseClient = null;
+    let isConnected = false;
+    let currentUser = null;
+
+    let leads = [];
+    let cotas = [];
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadStages();
+      initSupabaseFixed();
+      calcularSimulacao();
+    });
+
+    // --- AUTENTICAÇÃO E LOGIN COM TRAVA DE E-MAIL EXCLUSIVO ---
+    async function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      const btn = document.getElementById('btn-submit-login');
+      const errorMsg = document.getElementById('login-error-msg');
+
+      errorMsg.classList.add('hidden');
+
+      // Trava de segurança: impede login se o e-mail não for o autorizado
+      if (email.toLowerCase() !== EMAIL_AUTORIZADO.toLowerCase()) {
+        showLoginError('Acesso negado: Este e-mail não tem permissão para aceder a este sistema.');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>Verificando...</span>`;
+
+      try {
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+
+        currentUser = data.user;
+        showAppScreen();
+        await syncData();
+      } catch (err) {
+        showLoginError(err.message || 'Erro ao efetuar login. Verifique as credenciais.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fa-solid fa-right-to-bracket"></i> <span>Entrar no Sistema</span>`;
+      }
+    }
+
+    async function handleLogout() {
+      if (supabaseClient) {
+        await supabaseClient.auth.signOut();
+      }
+      currentUser = null;
+      document.getElementById('login-screen').classList.remove('hidden');
+      document.getElementById('app-content').classList.add('hidden');
+    }
+
+    function showLoginError(msg) {
+      const el = document.getElementById('login-error-msg');
+      el.innerText = msg;
+      el.classList.remove('hidden');
+    }
+
+    function showAppScreen() {
+      document.getElementById('login-screen').classList.add('hidden');
+      document.getElementById('app-content').classList.remove('hidden');
+      renderAll();
+    }
+
+    // --- GERENCIAMENTO DE ETAPAS ---
+    function loadStages() {
+      const stored = localStorage.getItem('pedro_crm_kanban_stages');
+      if (stored) {
+        try { kanbanStages = JSON.parse(stored); } catch (e) { kanbanStages = [...DEFAULT_STAGES]; }
+      } else {
+        kanbanStages = [...DEFAULT_STAGES];
+      }
+    }
+
+    function saveStages() {
+      localStorage.setItem('pedro_crm_kanban_stages', JSON.stringify(kanbanStages));
+    }
+
+    function openStagesModal() {
+      renderStagesEditor();
+      document.getElementById('modal-stages').classList.remove('hidden');
+    }
+
+    function closeStagesModal() {
+      document.getElementById('modal-stages').classList.add('hidden');
+    }
+
+    function renderStagesEditor() {
+      const container = document.getElementById('stages-list-editor');
+      container.innerHTML = '';
+
+      kanbanStages.forEach((stg, index) => {
+        const item = document.createElement('div');
+        item.className = "flex items-center justify-between p-2 rounded-xl bg-slate-100 border border-slate-200 text-xs gap-2";
+        item.innerHTML = `
+          <div class="flex items-center gap-2 flex-1">
+            <span class="w-3 h-3 rounded-full bg-${stg.color}-500 shrink-0"></span>
+            <input type="text" value="${stg.title}" onchange="updateStageTitle(${index}, this.value)" class="bg-white border border-slate-300 rounded-lg px-2 py-1 font-semibold text-slate-800 w-full focus:outline-none focus:ring-1 focus:ring-blue-500" />
+          </div>
+          <select onchange="updateStageColor(${index}, this.value)" class="bg-white border border-slate-300 rounded-lg p-1 text-[11px] text-slate-700">
+            <option value="blue" ${stg.color === 'blue' ? 'selected' : ''}>Azul</option>
+            <option value="amber" ${stg.color === 'amber' ? 'selected' : ''}>Amarelo</option>
+            <option value="purple" ${stg.color === 'purple' ? 'selected' : ''}>Roxo</option>
+            <option value="indigo" ${stg.color === 'indigo' ? 'selected' : ''}>Índigo</option>
+            <option value="cyan" ${stg.color === 'cyan' ? 'selected' : ''}>Ciano</option>
+            <option value="emerald" ${stg.color === 'emerald' ? 'selected' : ''}>Verde</option>
+            <option value="rose" ${stg.color === 'rose' ? 'selected' : ''}>Rosa</option>
+          </select>
+          <button onclick="removeStage(${index})" class="text-slate-400 hover:text-rose-600 p-1"><i class="fa-solid fa-trash"></i></button>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function updateStageTitle(index, val) {
+      if (val.trim()) kanbanStages[index].title = val.trim();
+    }
+
+    function updateStageColor(index, color) {
+      kanbanStages[index].color = color;
+      renderStagesEditor();
+    }
+
+    function addStage() {
+      const input = document.getElementById('new-stage-title');
+      const colorSelect = document.getElementById('new-stage-color');
+      const title = input.value.trim();
+
+      if (!title) return alert('Informe um nome para a nova etapa.');
+
+      const id = 'stg_' + Date.now();
+      kanbanStages.push({ id, title, color: colorSelect.value });
+      input.value = '';
+      renderStagesEditor();
+    }
+
+    function removeStage(index) {
+      if (kanbanStages.length <= 1) return alert('Você precisa manter pelo menos uma etapa no Kanban.');
+      if (confirm(`Remover a etapa "${kanbanStages[index].title}"?`)) {
+        kanbanStages.splice(index, 1);
+        renderStagesEditor();
+      }
+    }
+
+    function resetDefaultStages() {
+      if (confirm('Restaurar etapas originais do CRM?')) {
+        kanbanStages = [...DEFAULT_STAGES];
+        renderStagesEditor();
+      }
+    }
+
+    function saveStagesAndClose() {
+      saveStages();
+      closeStagesModal();
+      renderAll();
+    }
+
+    // --- INICIALIZAÇÃO SUPABASE FIXA ---
+    async function initSupabaseFixed() {
+      try {
+        const cleanUrl = SUPABASE_URL.replace(/\/rest\/v1\/?$/, '').replace(/\/$/, '');
+        supabaseClient = window.supabase.createClient(cleanUrl, SUPABASE_ANON_KEY);
+        
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (session && session.user) {
+          currentUser = session.user;
+          isConnected = true;
+          showAppScreen();
+          await syncData();
+        } else {
+          isConnected = true;
+        }
+      } catch (err) {
+        console.error("Erro ao inicializar Supabase:", err);
+        isConnected = false;
+        loadLocalStorageData();
+        renderAll();
+      }
+    }
+
+    function loadLocalStorageData() {
+      const storedLeads = localStorage.getItem('pedro_crm_leads_data');
+      const storedCotas = localStorage.getItem('pedro_crm_cotas_data');
+
+      leads = storedLeads ? JSON.parse(storedLeads) : MOCK_LEADS;
+      cotas = storedCotas ? JSON.parse(storedCotas) : MOCK_COTAS;
+
+      saveLocalStorageData();
+    }
+
+    function saveLocalStorageData() {
+      localStorage.setItem('pedro_crm_leads_data', JSON.stringify(leads));
+      localStorage.setItem('pedro_crm_cotas_data', JSON.stringify(cotas));
+    }
+
+    async function syncData() {
+      const icon = document.getElementById('sync-icon');
+      if (icon) icon.classList.add('fa-spin');
+
+      if (isConnected && supabaseClient) {
+        try {
+          const [resLeads, resCotas] = await Promise.all([
+            supabaseClient.from('leads').select('*').order('created_at', { ascending: false }),
+            supabaseClient.from('cotas').select('*').order('created_at', { ascending: false })
+          ]);
+
+          if (resLeads.data) leads = resLeads.data;
+          if (resCotas.data) cotas = resCotas.data;
+
+          saveLocalStorageData();
+        } catch (err) {
+          console.error("Erro ao puxar dados do Supabase:", err);
+        }
+      } else {
+        loadLocalStorageData();
+      }
+
+      setTimeout(() => {
+        if (icon) icon.classList.remove('fa-spin');
+        renderAll();
+      }, 300);
+    }
+
+    function renderAll() {
+      renderDashboard();
+      renderKanban();
+      renderCotas();
+      renderClientes();
+      updateLeadEtapaSelectOptions();
+    }
+
+    function updateLeadEtapaSelectOptions() {
+      const select = document.getElementById('lead-etapa');
+      if (!select) return;
+
+      select.innerHTML = '';
+      kanbanStages.forEach(stg => {
+        const opt = document.createElement('option');
+        opt.value = stg.id;
+        opt.innerText = stg.title;
+        select.appendChild(opt);
+      });
+    }
+
+    function renderDashboard() {
+      const totalLeads = leads.length;
+      
+      const negociacaoLeads = leads.filter(l => ['proposta', 'negociacao', 'aguardando'].includes(l.etapa));
+      const creditoNegociacao = negociacaoLeads.reduce((acc, l) => acc + Number(l.credito || 0), 0);
+
+      const ganhoLeads = leads.filter(l => l.etapa === 'ganho');
+      const creditoGanho = ganhoLeads.reduce((acc, l) => acc + Number(l.credito || 0), 0) + 
+                            cotas.reduce((acc, c) => acc + Number(c.credito || 0), 0);
+
+      const comissao = creditoGanho * 0.015;
+
+      const fmt = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
+
+      document.getElementById('dash-total-leads').innerText = totalLeads;
+      document.getElementById('dash-credito-negociacao').innerText = fmt(creditoNegociacao);
+      document.getElementById('dash-credito-ganho').innerText = fmt(creditoGanho);
+      document.getElementById('dash-comissao').innerText = fmt(comissao);
+
+      document.getElementById('stat-credito').innerText = fmt(creditoGanho);
+      document.getElementById('stat-vendas').innerText = ganhoLeads.length + cotas.length;
+      document.getElementById('stat-comissao').innerText = fmt(comissao);
+
+      const assList = document.getElementById('dash-assembleias-list');
+      assList.innerHTML = '';
+      if (cotas.length === 0) {
+        assList.innerHTML = `<p class="text-xs text-slate-400 italic">Nenhuma cota cadastrada.</p>`;
+      } else {
+        cotas.slice(0, 5).forEach(c => {
+          const item = document.createElement('div');
+          item.className = 'flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100 text-xs';
+          item.innerHTML = `
+            <div>
+              <span class="font-bold text-slate-800">${c.administradora} (Gr: ${c.grupo} / Cota: ${c.cota})</span>
+              <span class="block text-[10px] text-slate-500">Dia Venc: ${c.vencimento}</span>
+            </div>
+            <span class="bg-amber-100 text-amber-800 font-bold px-2 py-1 rounded-lg text-[10px]">
+              Assembleia Dia ${c.assembleia}
+            </span>
+          `;
+          assList.appendChild(item);
+        });
+      }
+
+      const funilContainer = document.getElementById('dash-funil-breakdown');
+      funilContainer.innerHTML = '';
+
+      kanbanStages.forEach(stg => {
+        const count = leads.filter(l => l.etapa === stg.id).length;
+        const pct = totalLeads > 0 ? ((count / totalLeads) * 100).toFixed(0) : 0;
+
+        const row = document.createElement('div');
+        row.className = 'space-y-1';
+        row.innerHTML = `
+          <div class="flex justify-between text-slate-600 font-medium">
+            <span>${stg.title}</span>
+            <span>${count} (${pct}%)</span>
+          </div>
+          <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+            <div class="bg-blue-600 h-full rounded-full" style="width: ${pct}%"></div>
+          </div>
+        `;
+        funilContainer.appendChild(row);
+      });
+    }
+
+    function renderKanban() {
+      const wrapper = document.getElementById('kanban-wrapper');
+      if (!wrapper) return;
+      wrapper.innerHTML = '';
+
+      kanbanStages.forEach(stg => {
+        const stageLeads = leads.filter(l => l.etapa === stg.id);
+        
+        let colBg = 'bg-slate-200/60 border-slate-300/60';
+        let badgeBg = 'bg-white text-slate-600';
+        let dotColor = `bg-${stg.color}-500`;
+
+        if (stg.color === 'emerald') {
+          colBg = 'bg-emerald-100/60 border-emerald-300/70';
+          badgeBg = 'bg-white text-emerald-800 border-emerald-200';
+        } else if (stg.color === 'rose') {
+          colBg = 'bg-rose-100/40 border-rose-200/70';
+          badgeBg = 'bg-white text-rose-700 border-rose-200';
+        }
+
+        const colDiv = document.createElement('div');
+        colDiv.className = `${colBg} p-3 rounded-2xl border flex flex-col max-h-[calc(100vh-220px)] min-w-[270px] w-[270px] shrink-0`;
+        colDiv.innerHTML = `
+          <div class="flex justify-between items-center mb-3 px-1">
+            <span class="font-bold text-xs uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full ${dotColor}"></span> ${stg.title}
+            </span>
+            <span id="count-${stg.id}" class="text-xs font-bold ${badgeBg} px-2 py-0.5 rounded-full border">${stageLeads.length}</span>
+          </div>
+          <div id="col-${stg.id}" ondrop="drop(event, '${stg.id}')" ondragover="allowDrop(event)" class="kanban-col space-y-2.5 overflow-y-auto flex-1 min-h-[180px]"></div>
+        `;
+
+        wrapper.appendChild(colDiv);
+
+        const colEl = document.getElementById(`col-${stg.id}`);
+        stageLeads.forEach(lead => {
+          colEl.appendChild(createKanbanCard(lead));
+        });
+      });
+    }
+
+    function createKanbanCard(lead) {
+      const card = document.createElement('div');
+      card.className = 'bg-white p-3 rounded-xl shadow-sm border border-slate-200 cursor-grab hover:shadow-md transition group';
+      card.draggable = true;
+      card.ondragstart = (e) => drag(e, lead.id);
+
+      const valFormatted = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(lead.credito || 0);
+
+      card.innerHTML = `
+        <div class="flex justify-between items-start mb-1">
+          <span class="font-bold text-xs text-slate-800 line-clamp-1">${lead.nome}</span>
+          <span class="text-[9px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-medium">${lead.tipo || 'Consórcio'}</span>
+        </div>
+        <p class="text-xs font-bold text-blue-600 mb-2">${valFormatted}</p>
+        ${lead.obs ? `<p class="text-[10px] text-slate-500 mb-2 line-clamp-2 bg-slate-50 p-1 rounded border border-slate-100">${lead.obs}</p>` : ''}
+        
+        <div class="flex items-center justify-between border-t border-slate-100 pt-2 text-xs">
+          <button onclick="openWhatsApp('${lead.whatsapp}', '${lead.nome}', '${lead.tipo}', ${lead.credito})" class="text-emerald-600 hover:text-emerald-700 font-semibold text-[10px] flex items-center gap-1">
+            <i class="fa-brands fa-whatsapp text-xs"></i> Whats
+          </button>
+          
+          <div class="flex space-x-1.5 text-slate-400">
+            <button onclick="editLead('${lead.id}')" title="Editar" class="hover:text-slate-700 p-0.5"><i class="fa-solid fa-pen-to-square"></i></button>
+            <button onclick="deleteLead('${lead.id}')" title="Excluir" class="hover:text-rose-600 p-0.5"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </div>
+      `;
+      return card;
+    }
+
+    function allowDrop(ev) { ev.preventDefault(); }
+    function drag(ev, id) { ev.dataTransfer.setData("text/plain", id); }
+
+    async function drop(ev, targetStage) {
+      ev.preventDefault();
+      const id = ev.dataTransfer.getData("text/plain");
+      const lead = leads.find(l => String(l.id) === String(id));
+      
+      if (lead) {
+        lead.etapa = targetStage;
+        renderAll();
+
+        if (isConnected && supabaseClient) {
+          try {
+            await supabaseClient.from('leads').update({ etapa: targetStage }).eq('id', id);
+          } catch (err) {
+            console.error("Erro ao atualizar etapa no Supabase:", err);
+          }
+        } else {
+          saveLocalStorageData();
+        }
+      }
+    }
+
+    function scrollKanban(direction) {
+      const wrapper = document.getElementById('kanban-wrapper');
+      const amount = 300;
+      if (direction === 'left') {
+        wrapper.scrollBy({ left: -amount, behavior: 'smooth' });
+      } else {
+        wrapper.scrollBy({ left: amount, behavior: 'smooth' });
+      }
+    }
+
+    function renderCotas() {
+      const grid = document.getElementById('cotas-grid');
+      const statusFilter = document.getElementById('filter-cotas-status').value;
+      grid.innerHTML = '';
+
+      let filtered = cotas;
+      if (statusFilter !== 'todos') {
+        filtered = cotas.filter(c => c.status === statusFilter);
+      }
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div class="col-span-full text-center py-8 text-slate-400 text-xs">Nenhuma cota cadastrada.</div>`;
+        return;
+      }
+
+      filtered.forEach(c => {
+        const owner = leads.find(l => String(l.id) === String(c.lead_id));
+        const ownerName = owner ? owner.nome : 'Cliente Não Vinculado';
+
+        const fmtCred = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(c.credito || 0);
+        const fmtParc = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(c.parcela || 0);
+
+        const card = document.createElement('div');
+        card.className = "bg-white p-4 rounded-2xl shadow-sm border border-slate-200 space-y-3";
+        card.innerHTML = `
+          <div class="flex justify-between items-start">
+            <div>
+              <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">${c.administradora}</span>
+              <h3 class="font-bold text-slate-800 text-sm">Grupo: ${c.grupo} | Cota: ${c.cota}</h3>
+            </div>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${c.status === 'contemplada' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}">
+              ${c.status === 'contemplada' ? 'Contemplada' : 'Ativa'}
+            </span>
+          </div>
+
+          <div class="bg-slate-50 p-2.5 rounded-xl text-xs space-y-1">
+            <div class="flex justify-between"><span class="text-slate-500">Titular:</span><span class="font-semibold text-slate-700">${ownerName}</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">Crédito:</span><span class="font-bold text-slate-800">${fmtCred}</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">Parcela:</span><span class="font-semibold text-blue-600">${fmtParc}</span></div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 text-[11px] text-slate-600 border-t pt-2">
+            <div><i class="fa-regular fa-calendar-check text-blue-500"></i> Vencimento: <b>Dia ${c.vencimento}</b></div>
+            <div><i class="fa-solid fa-users-rays text-amber-500"></i> Assembleia: <b>Dia ${c.assembleia}</b></div>
+          </div>
+
+          <div class="flex justify-between items-center text-xs pt-1">
+            <span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded">Lance: ${c.lance}</span>
+            <button onclick="deleteCota('${c.id}')" class="text-slate-400 hover:text-rose-600 text-xs"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function renderClientes() {
+      const tbody = document.getElementById('clientes-table-body');
+      const search = document.getElementById('search-clientes').value.toLowerCase();
+      tbody.innerHTML = '';
+
+      const filtered = leads.filter(l => l.nome.toLowerCase().includes(search) || l.whatsapp.includes(search));
+      document.getElementById('total-clientes-registros').innerText = filtered.length;
+
+      filtered.forEach(l => {
+        const fmtCred = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(l.credito || 0);
+        const stageObj = kanbanStages.find(s => s.id === l.etapa);
+        const stageName = stageObj ? stageObj.title : l.etapa.replace('_', ' ');
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50 transition border-b border-slate-100';
+
+        tr.innerHTML = `
+          <td class="py-3 px-4 font-semibold text-slate-800">${l.nome}</td>
+          <td class="py-3 px-4 text-slate-600 font-mono text-xs">${l.whatsapp}</td>
+          <td class="py-3 px-4">
+            <span class="font-bold text-slate-700">${l.tipo || 'Consórcio'}</span>
+            <span class="text-slate-400 block text-xs">${fmtCred}</span>
+          </td>
+          <td class="py-3 px-4">
+            <span class="capitalize text-xs font-semibold bg-slate-100 text-slate-700 px-2 py-1 rounded-md border">
+              ${stageName}
+            </span>
+          </td>
+          <td class="py-3 px-4 text-center space-x-2">
+            <button onclick="openWhatsApp('${l.whatsapp}', '${l.nome}', '${l.tipo}', ${l.credito})" class="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg"><i class="fa-brands fa-whatsapp text-base"></i></button>
+            <button onclick="editLead('${l.id}')" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"><i class="fa-solid fa-pen-to-square text-base"></i></button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function calcularSimulacao() {
+      const credito = parseFloat(document.getElementById('sim-credito').value) || 0;
+      const prazo = parseFloat(document.getElementById('sim-prazo').value) || 1;
+      const taxa = parseFloat(document.getElementById('sim-taxa').value) || 0;
+      const lanceLivre = parseFloat(document.getElementById('sim-lance-livre').value) || 0;
+      const lanceEmbutidoPct = parseFloat(document.getElementById('sim-lance-embutido-pct').value) || 0;
+      const modoAbatimento = document.getElementById('sim-modo-abatimento').value;
+
+      const totalComTaxa = credito * (1 + (taxa / 100));
+      const parcelaInicial = totalComTaxa / prazo;
+
+      const valorLanceEmbutido = credito * (lanceEmbutidoPct / 100);
+      const lanceTotal = lanceLivre + valorLanceEmbutido;
+      const pctTotal = credito > 0 ? (lanceTotal / credito) * 100 : 0;
+
+      const creditoLiquido = credito - valorLanceEmbutido;
+      let saldoDevedorRestante = totalComTaxa - lanceTotal;
+      if (saldoDevedorRestante < 0) saldoDevedorRestante = 0;
+
+      let posRotulo = "";
+      let posValor = "";
+
+      const fmt = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
+
+      if (modoAbatimento === 'parcela') {
+        const novaParcela = saldoDevedorRestante / prazo;
+        posRotulo = "Nova Parcela Reduzida:";
+        posValor = fmt(novaParcela);
+      } else {
+        const prazoEstimado = Math.ceil(saldoDevedorRestante / parcelaInicial);
+        posRotulo = "Novo Prazo Estimado:";
+        posValor = `${prazoEstimado} meses (${fmt(parcelaInicial)}/mês)`;
+      }
+
+      document.getElementById('res-credito-liquido').innerText = fmt(creditoLiquido);
+      document.getElementById('res-parcela-inicial').innerText = fmt(parcelaInicial);
+      document.getElementById('res-lance-total').innerText = `${fmt(lanceTotal)} (${pctTotal.toFixed(1)}%)`;
+      document.getElementById('res-lance-livre').innerText = fmt(lanceLivre);
+      document.getElementById('res-lance-embutido').innerText = `${fmt(valorLanceEmbutido)} (${lanceEmbutidoPct}%)`;
+
+      document.getElementById('res-rotulo-pos').innerText = posRotulo;
+      document.getElementById('res-valor-pos').innerText = posValor;
+    }
+
+    function enviarPropostaSimuladaWhats() {
+      const credito = parseFloat(document.getElementById('sim-credito').value) || 0;
+      const prazo = document.getElementById('sim-prazo').value;
+      const parcelaInicial = document.getElementById('res-parcela-inicial').innerText;
+      const lanceTotal = document.getElementById('res-lance-total').innerText;
+      const creditoLiquido = document.getElementById('res-credito-liquido').innerText;
+      const posValor = document.getElementById('res-valor-pos').innerText;
+
+      const fmtCredito = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(credito);
+
+      const msg = `Olá! Montei uma simulação especial de consórcio:%0A%0A` +
+                  `📌 *Crédito:* ${fmtCredito}%0A` +
+                  `🗓 *Prazo:* ${prazo} meses%0A` +
+                  `💰 *Parcela Inicial:* ${parcelaInicial}%0A%0A` +
+                  `🚀 *Estratégia de Oferta de Lance:*%0A` +
+                  `• *Lance Total:* ${lanceTotal}%0A` +
+                  `• *Crédito Líquido Liberado:* ${creditoLiquido}%0A` +
+                  `• *Pós-Contemplação:* ${posValor}%0A%0A` +
+                  `Vamos analisar juntos essa oportunidade?`;
+
+      window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
+    }
+
+    async function saveLead(e) {
+      e.preventDefault();
+      const id = document.getElementById('lead-id').value;
+      const nome = document.getElementById('lead-nome').value;
+      const whatsapp = document.getElementById('lead-whatsapp').value.replace(/\D/g, '');
+      const tipo = document.getElementById('lead-tipo').value;
+      const credito = parseFloat(document.getElementById('lead-credito').value) || 0;
+      const etapa = document.getElementById('lead-etapa').value;
+      const obs = document.getElementById('lead-obs').value;
+
+      const payload = { nome, whatsapp, tipo, credito, etapa, obs };
+
+      if (isConnected && supabaseClient) {
+        try {
+          if (id) {
+            await supabaseClient.from('leads').update(payload).eq('id', id);
+          } else {
+            await supabaseClient.from('leads').insert([payload]);
+          }
+          await syncData();
+        } catch (err) {
+          console.error("Erro ao salvar lead no Supabase:", err);
+        }
+      } else {
+        if (id) {
+          const idx = leads.findIndex(l => String(l.id) === String(id));
+          if (idx !== -1) leads[idx] = { ...leads[idx], ...payload };
+        } else {
+          leads.unshift({ id: 'loc_' + Date.now(), ...payload });
+        }
+        saveLocalStorageData();
+        renderAll();
+      }
+
+      closeLeadModal();
+    }
+
+    async function deleteLead(id) {
+      if (!confirm('Deseja excluir este lead?')) return;
+
+      if (isConnected && supabaseClient) {
+        try {
+          await supabaseClient.from('leads').delete().eq('id', id);
+          await syncData();
+        } catch (err) {
+          console.error("Erro ao deletar lead:", err);
+        }
+      } else {
+        leads = leads.filter(l => String(l.id) !== String(id));
+        saveLocalStorageData();
+        renderAll();
+      }
+    }
+
+    async function saveCota(e) {
+      e.preventDefault();
+      const payload = {
+        lead_id: document.getElementById('cota-lead-id').value,
+        administradora: document.getElementById('cota-admin').value,
+        grupo: document.getElementById('cota-grupo').value,
+        cota: document.getElementById('cota-numero').value,
+        credito: parseFloat(document.getElementById('cota-credito').value) || 0,
+        parcela: parseFloat(document.getElementById('cota-parcela').value) || 0,
+        vencimento: parseInt(document.getElementById('cota-vencimento').value) || 10,
+        assembleia: parseInt(document.getElementById('cota-assembleia').value) || 15,
+        lance: document.getElementById('cota-lance').value,
+        status: document.getElementById('cota-status').value
+      };
+
+      if (isConnected && supabaseClient) {
+        try {
+          await supabaseClient.from('cotas').insert([payload]);
+          await syncData();
+        } catch (err) {
+          console.error("Erro ao salvar cota no Supabase:", err);
+        }
+      } else {
+        cotas.unshift({ id: 'c_loc_' + Date.now(), ...payload });
+        saveLocalStorageData();
+        renderAll();
+      }
+
+      closeCotaModal();
+    }
+
+    async function deleteCota(id) {
+      if (!confirm('Excluir esta cota?')) return;
+
+      if (isConnected && supabaseClient) {
+        try {
+          await supabaseClient.from('cotas').delete().eq('id', id);
+          await syncData();
+        } catch (err) {
+          console.error("Erro ao deletar cota:", err);
+        }
+      } else {
+        cotas = cotas.filter(c => String(c.id) !== String(id));
+        saveLocalStorageData();
+        renderAll();
+      }
+    }
+
+    function openLeadModal() {
+      document.getElementById('form-lead').reset();
+      document.getElementById('lead-id').value = '';
+      updateLeadEtapaSelectOptions();
+      document.getElementById('modal-lead-title').innerText = 'Novo Lead';
+      document.getElementById('modal-lead').classList.remove('hidden');
+    }
+    function closeLeadModal() {
+      document.getElementById('modal-lead').classList.add('hidden');
+    }
+
+    function editLead(id) {
+      const lead = leads.find(l => String(l.id) === String(id));
+      if (!lead) return;
+
+      updateLeadEtapaSelectOptions();
+
+      document.getElementById('lead-id').value = lead.id;
+      document.getElementById('lead-nome').value = lead.nome;
+      document.getElementById('lead-whatsapp').value = lead.whatsapp;
+      document.getElementById('lead-tipo').value = lead.tipo || 'Imóvel';
+      document.getElementById('lead-credito').value = lead.credito;
+      document.getElementById('lead-etapa').value = lead.etapa;
+      document.getElementById('lead-obs').value = lead.obs || '';
+
+      document.getElementById('modal-lead-title').innerText = 'Editar Lead';
+      document.getElementById('modal-lead').classList.remove('hidden');
+    }
+
+    function openCotaModal() {
+      const select = document.getElementById('cota-lead-id');
+      select.innerHTML = '';
+
+      leads.forEach(l => {
+        const opt = document.createElement('option');
+        opt.value = l.id;
+        opt.innerText = `${l.nome} (${l.tipo || 'Consórcio'})`;
+        select.appendChild(opt);
+      });
+
+      document.getElementById('form-cota').reset();
+      document.getElementById('modal-cota').classList.remove('hidden');
+    }
+    function closeCotaModal() {
+      document.getElementById('modal-cota').classList.add('hidden');
+    }
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('border-blue-600', 'text-blue-600');
+        btn.classList.add('border-transparent', 'text-slate-500');
+      });
+
+      document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+      const activeBtn = document.getElementById(`tab-btn-${tabName}`);
+      if (activeBtn) {
+        activeBtn.classList.remove('border-transparent', 'text-slate-500');
+        activeBtn.classList.add('border-blue-600', 'text-blue-600');
+      }
+    }
+
+    function openWhatsApp(phone, nome, tipo, credito) {
+      const cleanPhone = phone.replace(/\D/g, '');
+      const fmtCredito = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(credito || 0);
+      const text = `Olá ${nome}, tudo bem? Sou o Pedro especialista em consórcios! Vi seu interesse no crédito de ${tipo || 'bem'} no valor de ${fmtCredito}. Podemos conversar sobre as opções de lances para a próxima assembleia?`;
+      window.open(`https://wa.me/55${cleanPhone}?text=${encodeURIComponent(text)}`, '_blank');
+    }
+
+    function copiarSQL() {
+      const code = document.getElementById('sql-script-code').innerText;
+      const tempInput = document.createElement('textarea');
+      tempInput.value = code;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempInput);
+      alert('Script SQL copiado com sucesso!');
+    }
+  </script>
+</body>
+</html>
